@@ -1,0 +1,156 @@
+---
+title: "Running the Demo App on iPhone, iPad, or Mac"
+description: "Guide to launching the iOS/macOS demo app included with FastVLM. Walks through opening the app project, building for device or simulator, and capturing live visual-language model results—demonstrating FastVLM's capabilities in a real-world mobile context."
+---
+
+# Running the Demo App on iPhone, iPad, or Mac
+
+This guide walks you through launching the FastVLM demo app on iOS or macOS devices, showcasing real-time visual-language model capabilities directly on your device. You will learn how to open the app project in Xcode, configure it for your target device or simulator, build and run the app, and interact with live camera input to experience FastVLM's efficient on-device inference.
+
+---
+
+## 1. Prerequisites
+
+Before proceeding, ensure you have met the following requirements:
+
+- **Hardware**: Mac with Xcode installed; iOS device (iPhone/iPad) running iOS 18.2+ or a Mac running macOS 15.2+.
+- **Software**: Xcode 16.2 or later.
+- **Model Files**: Pretrained FastVLM model downloaded and placed in the app's expected directory (`app/FastVLM/model`).
+- **Permissions**: Camera access must be allowed for the app on your device.
+
+<Tip>
+Downloading the pretrained models is essential for the app to function. Use the provided script to download and place model files correctly.
+</Tip>
+
+---
+
+## 2. Downloading Pretrained Models
+
+1. Open a terminal and navigate to the root FastVLM repository.
+2. Make the pretrained model download script executable:
+
+```bash
+chmod +x app/get_pretrained_mlx_model.sh
+```
+
+3. Run the script specifying your desired model (e.g., 0.5b) and destination folder:
+
+```bash
+app/get_pretrained_mlx_model.sh --model 0.5b --dest app/FastVLM/model
+```
+
+4. Wait for the download to complete. Files will be automatically organized.
+
+<Note>
+Ensure you clear any existing model files in `app/FastVLM/model` before downloading a new model to prevent conflicting issues.
+</Note>
+
+---
+
+## 3. Opening and Configuring the App in Xcode
+
+1. Launch **Xcode** on your Mac.
+2. Open the project file located at `app/FastVLM.xcodeproj`.
+3. Select the target scheme named **FastVLM App** (also known as `FastVLMCameraExample`).
+4. Choose the build destination:
+   - For real device: Connect your iPhone or iPad and select it as the build target.
+   - For simulator: Choose an iOS simulator like iPhone 14.
+   - For macOS: Select the appropriate Mac target if running the app on macOS.
+
+<Tip>
+The app supports iOS 18.2+ and macOS 15.2+. Ensure your development environment matches or exceeds these versions.
+</Tip>
+
+---
+
+## 4. Building and Running the App
+
+1. Click **Product > Build** (or press Cmd + B) to build the project.
+   - Monitor the build progress in Xcode; ensure no errors occur.
+2. Upon successful build, click the **Run** button (or press Cmd + R) to launch the app.
+3. If prompted, grant camera access permissions to allow the app to capture live video.
+4. The app will open and show a live camera feed with FastVLM running inference on the frames.
+
+<Tip>
+For the smoothest experience, ensure your device is on a stable power source and avoid changing build targets mid-session without rebuilding.
+</Tip>
+
+---
+
+## 5. Using the Demo App
+
+Once the app is running, you can:
+
+- **Select Camera Mode**:
+  - Use the segmented control to choose between **Continuous** (live inference on every frame) and **Single Shot** (tap frames manually for inference).
+
+- **Choose or Customize Prompts**:
+  - Tap the **Prompts** button in the top-right to select predefined prompts (e.g., 'Describe the image', 'Facial expression', or 'Read text').
+  - On iOS, you can create or edit prompts via the **Customize…** option.
+
+- **View Results**:
+  - The generated text response appears below the live video.
+  - Time-To-First-Token (TTFT) is displayed on the video overlay, indicating the inference latency.
+
+- **Cancel and Reset**:
+  - Switching camera mode cancels in-flight requests automatically.
+
+<Warning>
+Camera access is required for live video processing. If the app cannot access the camera, no image input will be available for inference.
+</Warning>
+
+---
+
+## 6. Building for Simulator vs Real Device
+
+| Target       | Notes                                                                               |
+|--------------|-------------------------------------------------------------------------------------|
+| **Device**   | Real-time camera feed from device camera. Requires proper provisioning and developer certificate. |
+| **Simulator**| Simulated camera feed; fewer real-time features but useful for UI testing.
+| **macOS**    | Supports live camera input if device has a webcam, otherwise shows preview only.
+
+Ensure you select the correct build target in the Scheme dropdown.
+
+---
+
+## 7. Troubleshooting Common Issues
+
+### Build Errors
+- **Check Xcode version**: Must be 16.2 or above.
+- **Missing Frameworks**: Ensure frameworks such as MLX, MLXLMCommon, MLXVLM, and Video.framework are properly linked.
+
+### Model Not Loading
+- Verify pretrained model files exist in the `app/FastVLM/model` directory.
+- If switching models, clear old model files before adding new ones.
+
+### Camera Access
+- Make sure the app has permission to access the camera in system privacy settings.
+- Restart the app to apply new permissions if changed while the app was running.
+
+### Performance Issues
+- Use Continuous mode for smoother interaction on powerful devices.
+- Lower resource devices may benefit from Single Shot mode to reduce load.
+
+---
+
+## 8. Additional Resources
+
+- [FastVLM Setup & Local Inference](https://your-documentation/getting-started/setup-local-inference/installation)
+- [Downloading Pretrained Models](https://your-documentation/getting-started/setup-local-inference/download-models)
+- [Running Your First Inference](https://your-documentation/getting-started/setup-local-inference/first-inference)
+- [Exporting Models for Apple Silicon](https://your-documentation/getting-started/apple-device-inference/apple-silicon-export)
+
+---
+
+With this setup, you're ready to explore FastVLM's real-time visual-language understanding on your iOS or macOS device — unlocking powerful multimodal AI directly at your fingertips.
+
+# Appendix: Quick Start Checklist
+
+- [ ] Download pretrained FastVLM model.
+- [ ] Open `FastVLM.xcodeproj` in Xcode.
+- [ ] Select the appropriate device or simulator.
+- [ ] Build and run the app.
+- [ ] Grant camera access.
+- [ ] Select a prompt and begin capturing live inference.
+
+---
