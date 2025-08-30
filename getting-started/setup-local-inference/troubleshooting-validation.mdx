@@ -1,0 +1,192 @@
+---
+title: "Quick Validation & Troubleshooting"
+description: "Covers the fastest ways to check that FastVLM is set up and functioning—basic smoke tests, common installation pitfalls, environment issues, and solutions. Empowers users to self-diagnose and resolve early blockers confidently."
+---
+
+# Quick Validation & Troubleshooting Guide
+
+This guide helps you quickly verify that your FastVLM installation is functioning correctly and provides targeted troubleshooting tips for common issues encountered during setup and early usage. By following these step-by-step checks, you can confidently ensure your environment and model pipeline are operational before proceeding to more advanced tasks.
+
+---
+
+## 1. Performing a Basic Smoke Test
+
+Confirm your FastVLM setup can load a model and process a sample image with a prompt.
+
+### Step 1: Prepare Your Environment
+
+- Ensure you have installed FastVLM and dependencies as per the [Installation & Environment Setup](./installation.md).
+- Have a sample image available locally, such as an image file `sample.jpg`.
+- Confirm a pretrained model checkpoint is downloaded and accessible as described in [Downloading Pretrained Models](./download-models.md).
+
+### Step 2: Run the Command-Line Validation Script
+
+Open a terminal and execute the following command using your model and image file:
+
+```bash
+python llava/serve/cli.py --image-file sample.jpg --model-path ./llava-v1.5-13b --device cuda
+```
+
+- This will load the model and present a prompt where you can type input.
+- You should see the model generate responses referencing the provided image.
+- To exit, simply press `Enter` on an empty prompt.
+
+### Step 3: Verify the Response
+
+- The model should output coherent sentences related to the image content.
+- If the output is empty, or errors are displayed, review troubleshooting steps below.
+
+<Tip>
+If you use CPU-only hardware, change the device argument to `--device cpu`.
+</Tip>
+
+---
+
+## 2. Validating via the Python Inference Script
+
+You can also perform a quick test with the `predict.py` script:
+
+```bash
+python predict.py --image-file sample.jpg --model-path ./llava-v1.5-13b --prompt "Describe the image." --conv-mode qwen_2
+```
+
+- This script loads the model, tokenizes the prompt with the image, runs inference, and prints the output.
+- It runs a single generation without interaction.
+
+<Check>
+Expect a fluently generated text description of the image.
+</Check>
+
+---
+
+## 3. Common Issues & How to Resolve Them
+
+Below are frequent problems and corrective actions.
+
+### Issue: Model Loading Fails or Takes Excessive Time
+
+- Verify the `--model-path` points to a valid checkpoint directory.
+- Check that the device (GPU/CPU) is properly specified and accessible.
+- If running on Apple Silicon Macs, confirm you have followed [Exporting Models for Apple Silicon](../../apple-device-inference/apple-silicon-export).
+
+### Issue: No Image Loaded or Errors Opening Image
+
+- Confirm the `--image-file` path is correct and the file is a supported format (e.g., JPG, PNG).
+- If loading an image URL, verify network connectivity and URL validity.
+
+### Issue: Inference Output is Empty or Non-Responsive
+
+- Reduce `--temperature` to 0.0 or a low value to stabilize output.
+- Ensure the prompt includes valid text; empty prompts will cause the process to exit.
+- Try increasing `--max-new-tokens` if output is abruptly cut.
+
+### Issue: Torch or CUDA Errors
+
+- Ensure your PyTorch installation matches your CUDA version.
+- Check GPU availability by running `nvidia-smi` or `torch.cuda.is_available()` (in Python).
+- For Apple Silicon devices, use the `mps` device if supported.
+
+### Issue: Tokenizer or Conversation Mode Warnings
+
+- If a warning appears about conversation mode mismatch, explicitly set `--conv-mode` to match your model type (e.g., `qwen_2`, `llava_llama_2`).
+
+---
+
+## 4. Environment Checks
+
+Verify your Python environment and dependencies:
+
+```bash
+python --version
+pip list | grep torch
+pip list | grep transformers
+```
+
+Ensure PyTorch version supports your hardware acceleration.
+
+---
+
+## 5. Quick Tests with Web UI
+
+For a rapid interactive check, start the Gradio interface:
+
+```bash
+python llava/serve/gradio_web_server.py --controller-url http://localhost:21001 --host 0.0.0.0 --port 7860
+```
+
+- Access the UI via `http://localhost:7860` in a web browser.
+- Upload images and enter prompts to test model responses.
+- This also helps verify the model server and communication pipeline.
+
+
+---
+
+## 6. Summary of Validation Commands
+
+| Task                  | Command Example                                                                                     |
+|-----------------------|--------------------------------------------------------------------------------------------------|
+| CLI Smoke Test        | `python llava/serve/cli.py --image-file sample.jpg --model-path ./llava-v1.5-13b --device cuda`     |
+| Single Inference      | `python predict.py --image-file sample.jpg --model-path ./llava-v1.5-13b --prompt "Describe the image."` |
+| Web UI Launch         | `python llava/serve/gradio_web_server.py --host 0.0.0.0 --port 7860`                              |
+
+
+---
+
+## 7. Additional Troubleshooting Resources
+
+- Check logs located in the `logs/` directory for detailed error messages.
+- Review environment variables like `OPENAI_API_KEY` if moderation blocks input.
+- Confirm network connectivity if downloading models or loading remote images.
+- Consult the [Model Export for Apple Silicon](../../apple-device-inference/apple-silicon-export.md) guide for platform-specific issues.
+
+
+---
+
+## 8. Next Steps After Validation
+
+- Proceed to [Running Your First Inference](./first-inference.md) to explore command nuances and prompt engineering.
+- Explore [Fine-tuning & Training Custom Models](../../guides/core-workflows/finetuning-models.md) if intending to customize models.
+- Visit [Interactive Chat with FastVLM via Web Interface](../../guides/core-workflows/using-gradio-web.md) for enhanced user experience.
+
+
+---
+
+<Tip>
+A systematic validation early in your FastVLM journey saves time and troubleshooting effort in later complex use cases.
+</Tip>
+
+---
+
+## Appendix: Quick Troubleshooting Cheat Sheet
+
+<AccordionGroup title="Common Issues and Fixes">
+<Accordion title="CUDA Not Found / Device Error">
+1. Confirm your GPU is detected: run `nvidia-smi`.
+2. Check PyTorch CUDA compatibility: `torch.version.cuda`.
+3. Switch to CPU with `--device cpu` if GPU is unavailable.
+</Accordion>
+<Accordion title="ModelFileNotFound">
+- Validate your model path exists and contains checkpoint files.
+- Use absolute paths or relative paths correctly.
+</Accordion>
+<Accordion title="Image Loading Error">
+- Ensure the image path/URL is reachable and in supported format.
+- Test opening image with any image viewer.
+</Accordion>
+<Accordion title="Empty or No Response Output">
+- Reduce temperature to 0.
+- Increase max tokens.
+- Verify the prompt is meaningful.
+</Accordion>
+<Accordion title="Warning about Conversation Mode">
+- Specify `--conv-mode` explicitly when running CLI to avoid auto-detection errors.
+</Accordion>
+</AccordionGroup>
+
+
+---
+
+For detailed troubleshooting or if issues persist after applying tips, seek community support via the official FastVLM GitHub repository or discussion channels.
+
+
+---

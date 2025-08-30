@@ -1,0 +1,165 @@
+---
+title: "Downloading Pretrained Models"
+description: "Guide to obtaining FastVLM pretrained model checkpoints, including using the provided script to download all recommended models and understanding checkpoint organization. Ensures users have the correct model weights for evaluation and experimentation."
+---
+
+# Downloading Pretrained Models
+
+This guide walks you through obtaining the FastVLM pretrained model checkpoints essential for running inference and experimentation. It includes practical steps to use the provided download script, understand the organization of checkpoints, and verify you have the correct weights to begin.
+
+---
+
+## 1. Overview
+
+FastVLM delivers real-time high-resolution vision-language capabilities by leveraging hybrid vision encoders and pretrained weights. These models come as checkpoint files containing learned weights necessary for accurate evaluation and inference. Without these checkpoints, the model cannot operate.
+
+This page focuses solely on obtaining these pretrained checkpoints in an organized manner, ensuring you can seamlessly proceed to inference or fine-tuning steps.
+
+<Check>
+Make sure you have sufficient disk space; the combined size of all model checkpoints can be several gigabytes.
+</Check>
+
+---
+
+## 2. Prerequisites
+
+Before proceeding, ensure:
+
+- You have Python 3 installed on your system.
+- You have `wget` and `unzip` utilities available (common on Linux/macOS).
+- Your machine has a stable internet connection to download checkpoint files.
+- You have write permissions to create directories and extract files.
+
+If these requirements are not met, please refer to the [Installation & Environment Setup](https://docs.example.com/getting-started/setup-local-inference/installation) page for environment preparation.
+
+---
+
+## 3. Downloading Model Checkpoints
+
+FastVLM provides a shell script `get_models.sh` that automates downloading and extracting all recommended pretrained model checkpoints.
+
+### Download Script Usage
+
+1. Clone or download the FastVLM repository where the `get_models.sh` script is located.
+
+2. Open a terminal and navigate to the directory containing `get_models.sh`.
+
+3. Run the script:
+
+```bash
+bash get_models.sh
+```
+
+This script performs the following actions:
+
+- Creates a directory named `checkpoints` in the current directory if it doesn’t already exist.
+- Downloads multiple zipped model checkpoint files using `wget` into the `checkpoints` folder.
+- Extracts each `.zip` archive silently into the `checkpoints` directory.
+- Removes all downloaded `.zip` files after extraction to save space.
+
+### Expected Checkpoints Downloaded
+
+- `llava-fastvithd_0.5b_stage2`
+- `llava-fastvithd_0.5b_stage3`
+- `llava-fastvithd_1.5b_stage2`
+- `llava-fastvithd_1.5b_stage3`
+- `llava-fastvithd_7b_stage2`
+- `llava-fastvithd_7b_stage3`
+
+These correspond to different model sizes and training stages, giving you flexibility depending on your hardware and performance needs.
+
+---
+
+## 4. Understanding Checkpoint Organization
+
+After extraction, your `checkpoints` folder will contain subdirectories (or files) named after each checkpoint, which include:
+
+- Model weight binaries (.bin files)
+- Configuration files (such as `config.json`)
+- Metadata needed for proper loading in FastVLM
+
+When specifying a `--model-path` in inference or training scripts, point directly to the relevant checkpoint folder within `checkpoints`.
+
+---
+
+## 5. Verifying Your Download
+
+After downloading and extracting the models, verify their integrity:
+
+- Check that each checkpoint directory is populated with files, not empty.
+- Compare sizes roughly to expected model sizes (e.g., 0.5B, 1.5B, 7B parameters) to confirm completeness.
+- Optionally, start a quick inference run using a small image and prompt as outlined in the [Running Your First Inference](https://docs.example.com/getting-started/setup-local-inference/first-inference) page.
+
+<Tip>
+Running inference immediately after download helps validate that the model loads without errors.
+</Tip>
+
+---
+
+## 6. Troubleshooting
+
+<AccordionGroup title="Common Issues and Solutions">
+<Accordion title="Download Fails or Is Interrupted">
+- Check your internet connection.
+- Try downloading files individually using the URLs in `get_models.sh`.
+- Ensure `wget` is installed and accessible.
+</Accordion>
+
+<Accordion title="Insufficient Disk Space">
+- Free up space to accommodate multiple gigabytes.
+- Download and extract one checkpoint at a time if space is limited.
+</Accordion>
+
+<Accordion title="Missing unzip Utility">
+- On Ubuntu/Debian: `sudo apt-get install unzip`
+- On macOS via Homebrew: `brew install unzip`
+</Accordion>
+
+<Accordion title="Model Loading Errors After Download">
+- Confirm the checkpoint directory is correctly specified when loading the model.
+- Ensure all files are properly extracted and not corrupted.
+- Verify you are using a compatible version of FastVLM.
+</Accordion>
+</AccordionGroup>
+
+---
+
+## 7. Next Steps
+
+Now that the pretrained checkpoints are downloaded and ready:
+
+- Proceed to the [Running Your First Inference](https://docs.example.com/getting-started/setup-local-inference/first-inference) guide to test the model with sample images and prompts.
+- Review the [Installation & Environment Setup](https://docs.example.com/getting-started/setup-local-inference/installation) if you have not yet installed the runtime environment.
+- Explore [Exporting Models for Apple Silicon](https://docs.example.com/getting-started/apple-device-inference/apple-silicon-export) if targeting Apple devices.
+
+---
+
+## 8. Additional Resources
+
+- [FastVLM Overview](https://docs.example.com/overview/intro-value/fastvlm-overview) – Understand FastVLM’s core technology and benefits.
+- [System Architecture & Data Flow](https://docs.example.com/overview/architecture-concepts/system-architecture) – Visualize how FastVLM processes images and text.
+- [Troubleshooting & Validation](https://docs.example.com/getting-started/setup-local-inference/troubleshooting-validation) – Solutions for common errors after setup.
+
+---
+
+If you encounter any issues not covered in this guide, please consult the FastVLM GitHub issues page or community forums for additional help.
+
+
+---
+
+### Example of Manual Download URLs
+
+If you prefer to download manually, here are example URLs from the `get_models.sh` script:
+
+```bash
+https://ml-site.cdn-apple.com/datasets/fastvlm/llava-fastvithd_0.5b_stage2.zip
+https://ml-site.cdn-apple.com/datasets/fastvlm/llava-fastvithd_0.5b_stage3.zip
+https://ml-site.cdn-apple.com/datasets/fastvlm/llava-fastvithd_1.5b_stage2.zip
+https://ml-site.cdn-apple.com/datasets/fastvlm/llava-fastvithd_1.5b_stage3.zip
+https://ml-site.cdn-apple.com/datasets/fastvlm/llava-fastvithd_7b_stage2.zip
+https://ml-site.cdn-apple.com/datasets/fastvlm/llava-fastvithd_7b_stage3.zip
+```
+
+You can download these using a browser or command line.
+
+---

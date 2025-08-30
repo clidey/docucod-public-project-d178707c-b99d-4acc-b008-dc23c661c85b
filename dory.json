@@ -1,0 +1,103 @@
+{
+  "background": {
+    "decoration": "gradient"
+  },
+  "colors": {
+    "dark": "#1E3A8A",
+    "light": "#60A5FA",
+    "primary": "#60A5FA"
+  },
+  "favicon": "/favicon.svg",
+  "fonts": {
+    "family": "Montserrat",
+    "format": "woff2",
+    "source": "https://fonts.gstatic.com/s/googlesansflex/v5/t5sJIQcYNIWbFgDgAAzZ34auoVyXkJCOvp3SFWJbN5hF8Ju1x6sKCyp0l9sI40swNJwGpVd4AZzz0v6lJ4qFXNZhGjLvDSkV4USKMo6qQzwliVdHAy9jxTDHg_ugnAakpwGc-cxgUqDCIUI.woff2"
+  },
+  "icons": {
+    "library": "fontawesome"
+  },
+  "logo": {
+    "dark": "./logo/logo.svg",
+    "light": "./logo/logo.svg"
+  },
+  "name": "FastVLM: Efficient Vision Encoding for Vision Language Models",
+  "navigation": {
+    "tabs": [
+      {
+        "groups": [
+          {
+            "group": "Product Introduction \u0026 Value",
+            "pages": [
+              "overview/intro-value/fastvlm-overview",
+              "overview/intro-value/core-value-prop",
+              "overview/intro-value/audience-use-cases"
+            ]
+          },
+          {
+            "group": "Architecture \u0026 Core Concepts",
+            "pages": [
+              "overview/architecture-concepts/system-architecture",
+              "overview/architecture-concepts/core-terminology",
+              "overview/architecture-concepts/feature-glance"
+            ]
+          }
+        ],
+        "tab": "Overview"
+      },
+      {
+        "groups": [
+          {
+            "group": "FastVLM Setup \u0026 Local Inference",
+            "pages": [
+              "getting-started/setup-local-inference/prerequisites",
+              "getting-started/setup-local-inference/installation",
+              "getting-started/setup-local-inference/download-models",
+              "getting-started/setup-local-inference/first-inference",
+              "getting-started/setup-local-inference/troubleshooting-validation"
+            ]
+          },
+          {
+            "group": "Inference on Apple Silicon \u0026 Devices",
+            "pages": [
+              "getting-started/apple-device-inference/apple-silicon-export",
+              "getting-started/apple-device-inference/running-mobile-app",
+              "getting-started/apple-device-inference/mobile-app-quickstart"
+            ]
+          }
+        ],
+        "tab": "Getting Started"
+      },
+      {
+        "groups": [
+          {
+            "group": "Core Workflows",
+            "pages": [
+              "guides/core-workflows/inference-basics",
+              "guides/core-workflows/finetuning-models",
+              "guides/core-workflows/using-gradio-web"
+            ]
+          },
+          {
+            "group": "Platform \u0026 Deployment Guides",
+            "pages": [
+              "guides/platform-integration/apple-silicon-inference",
+              "guides/platform-integration/ios-device-app"
+            ]
+          },
+          {
+            "group": "Performance \u0026 Optimization Patterns",
+            "pages": [
+              "guides/performance-best-practices/latency-throughput-tips",
+              "guides/performance-best-practices/best-practices"
+            ]
+          }
+        ],
+        "tab": "Guides"
+      }
+    ]
+  },
+  "styling": {
+    "codeblocks": "dark",
+    "eyebrows": "breadcrumbs"
+  }
+}

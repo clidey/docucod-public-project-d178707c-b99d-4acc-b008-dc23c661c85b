@@ -1,0 +1,111 @@
+---
+title: "Prerequisites & System Requirements"
+description: "Begin here to ensure your system is ready for FastVLM. Learn about supported operating systems, recommended hardware (CPU/GPU/Apple Silicon), Python version dependencies, and required tools for both research and demo workflows."
+---
+
+# Prerequisites & System Requirements for FastVLM
+
+Welcome to FastVLM! Before diving into setup and usage, it's crucial to ensure your system environment meets the necessary requirements. This guarantees a smooth installation and optimal performance across research experiments and demo scenarios.
+
+---
+
+## 1. Supported Operating Systems
+
+FastVLM is designed with flexibility in mind and supports the following platforms:
+
+- **Linux:** Recommended for research and development
+- **macOS:** Fully supported, especially Apple Silicon Macs (M1, M2)
+- **Windows:** Support available, though Linux/macOS preferred for seamless dependencies
+
+
+## 2. Hardware Requirements
+
+FastVLM targets efficient vision-language modeling on resource-constrained devices, but hardware specs impact performance:
+
+- **CPU:**
+  - Minimum: Quad-core processor
+  - Recommended: Recent multi-core CPUs (e.g., Intel i7/Ryzen 7 or Apple M1/M2)
+- **GPU:**
+  - Recommended for training and inference acceleration
+  - NVIDIA GPUs with CUDA support preferred for Linux/Windows
+  - Apple Silicon GPUs fully supported via optimized CoreML model paths
+- **Memory (RAM):**
+  - Minimum: 8 GB
+  - Recommended: 16 GB or more
+- **Disk Space:**
+  - Minimum: 10 GB free to accommodate model checkpoints and dependencies
+
+
+## 3. Python Environment & Dependencies
+
+FastVLM requires Python with specific packages for managing models, image processing, and inference workflows:
+
+- **Python Version:** 3.8 or higher (Python 3.9+ recommended)
+- **Packages:** Some key dependencies include:
+  - `torch` (PyTorch, compatible with your platform and CUDA version if applicable)
+  - `transformers` for model tokenizers and loading
+  - `Pillow` for image handling
+  - `requests` for remote resource loading
+  - `coremltools` (for Apple Silicon/Apple ecosystem support)
+  - Other dependencies can be installed via provided requirements files
+
+
+## 4. Access & Permissions
+
+Before proceeding, ensure you have:
+
+- **Internet Access:** Needed initially to download pretrained models and dependencies
+- **Environment Permissions:** Ability to install Python packages and write to filesystem directories where models and logs will reside
+- **API Credentials (if needed):**
+  - For some moderation or external API calls (e.g., OpenAI moderation API), environment variables like `OPENAI_API_KEY` may be required
+
+
+## 5. Network & Connectivity
+
+FastVLM workflows, particularly demos and serving, expect:
+
+- **Unrestricted HTTP/HTTPS Access:** To download models and make API calls
+- **Firewall & Proxy Settings:** Allow traffic on ports used by demo applications or servers (default ports specified in later docs)
+
+
+## 6. Recommended Tools & Auxiliary Software
+
+- **Git:** For cloning repositories and managing code versions
+- **Conda or Virtualenv:** To manage isolated Python environments
+- **CUDA Toolkit (if applicable):** For GPU acceleration on supported hardware
+
+
+---
+
+## Practical Tips & Common Pitfalls
+
+- **Apple Silicon Users:** Use Python versions compiled for ARM64 and install dependencies compatible with M1/M2 chips. The FastVLM CoreML vision tower leverages native acceleration here.
+- **GPU Setup:** Verify CUDA and cuDNN versions match PyTorch requirements to avoid runtime errors.
+- **Virtual Environments:** Always use a virtual environment to prevent conflicts with other Python projects.
+- **Storage Space:** Keep enough disk space for checkpoint downloads; interrupted downloads can cause corrupt files.
+- **API Key Setup:** Set environment variables securely in your shell or system profile.
+
+
+---
+
+By confirming the above, you're ready to proceed with installation and model setup. For detailed installation instructions and environment setup, please refer to the next page: [Installation & Environment Setup](/getting-started/setup-local-inference/installation).
+
+
+---
+
+### Quick Reference Checklist
+
+- [x] Supported OS: Linux/macOS/Windows (with recommendations)
+- [x] Hardware: CPU & recommended GPU with memory
+- [x] Python 3.8+, required Python packages
+- [x] Network: Internet & API access readiness
+- [x] Permissions for installation and file operations
+
+
+---
+
+If you encounter platform-specific issues or need immediate assistance, refer to the [Troubleshooting & Validation](/getting-started/setup-local-inference/troubleshooting-validation) guide.
+
+
+
+---

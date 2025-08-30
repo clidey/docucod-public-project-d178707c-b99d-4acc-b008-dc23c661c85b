@@ -1,0 +1,179 @@
+---
+title: "Running Your First Inference"
+description: "Detailed, narrative walkthrough of running FastVLM on your own image with a prompt, interpreting the results, and validating successful setup. Highlights example CLI usage, required arguments, and output expectations for a smooth first experience."
+---
+
+# Running Your First Inference with FastVLM
+
+Welcome to your first hands-on experience running FastVLM inference. This guide walks you through how to run the model locally on an image with a textual prompt, interpret the output, and validate that your setup is working as expected. By the end, you will have performed a complete inference cycle using the command-line interface (CLI) and understand the critical parameters and results to expect.
+
+---
+
+## 1. Overview
+
+FastVLM is designed for fast, efficient multimodal inference — seamlessly integrating vision and language in a single model. Running your first inference consists of three core steps:
+
+- Load the pretrained model checkpoint and tokenizer
+- Supply an image and a prompt describing what you want to ask about the image
+- Generate and observe the model’s textual response
+
+This process helps you verify model readiness and familiarize yourself with CLI usage for subsequent advanced tasks.
+
+---
+
+## 2. Prerequisites
+
+Before running inference, ensure you have:
+
+- A pretrained FastVLM model downloaded locally (see [Downloading Pretrained Models](/getting-started/setup-local-inference/download-models))
+- Python 3.8+ environment with required dependencies installed (see [Installation & Environment Setup](/getting-started/setup-local-inference/installation))
+- A valid image file on your computer that you want to analyze
+- Basic familiarity with terminal/command-line operations
+
+---
+
+## 3. Running Inference via CLI
+
+FastVLM provides a command-line script `llava/serve/cli.py` that enables quick multimodal interaction.
+
+### 3.1 Basic Command Format
+
+```bash
+python llava/serve/cli.py \
+  --model-path /path/to/your/model \
+  --image-file /path/to/your/image.jpg \
+  --temperature 0.2 \
+  --max-new-tokens 512
+```
+
+- `--model-path`: Path to the pretrained model checkpoint directory
+- `--image-file`: The input image to analyze
+- `--temperature`: Controls randomness in generation (0.0 for deterministic, higher for creative output)
+- `--max-new-tokens`: Limits the length of generated text tokens
+
+### 3.2 Interactive Prompt Mode
+
+After running the above command, the CLI will enter a prompt loop:
+
+1. You will be asked to enter your textual query about the provided image (e.g., "Describe the scene" or "What objects are present?")
+2. The model responds with generated text output
+3. You can continue entering new prompts or exit by providing an empty input
+
+### 3.3 Example Session
+
+```bash
+python llava/serve/cli.py --model-path ./llava-v1.5-13b --image-file ./examples/waterview.jpg
+```
+
+Terminal:
+```
+user: What are the things I should be cautious about when I visit here?
+assistant: This location has slippery rocks near the water's edge. Please be careful when walking to avoid falling.
+user: Thank you!
+assistant: You're welcome! Enjoy your visit.
+user: 
+exit...
+```
+
+### 3.4 Additional Command-Line Options
+
+- `--device`: Specify device such as `cuda`, `cpu`, or `mps` (Apple Silicon)
+- `--temperature`: Adjust creativity
+- `--conv-mode`: Conversation template mode; auto-detected but can be forced
+- `--load-8bit` / `--load-4bit`: Use quantized model weights to reduce memory
+- `--debug`: Enable verbose output for troubleshooting
+
+---
+
+## 4. Understanding the Output
+
+- The model generates fluent text that relates to the provided image and prompt.
+- The output is streamed live in the CLI, encouraging an interactive chat-style experience.
+- Text reflects understanding of image content based on the pretrained vision-language fusion.
+
+### 4.1 What to Look For
+
+- Relevant, coherent descriptions referencing visible image elements
+- Adherence to prompt instructions
+- Stable responses without partial or garbled text
+
+### 4.2 Troubleshooting Output
+
+- If output is empty or generic, verify the correct image and prompt format
+- Adjust `temperature` and `max-new-tokens` for more creative or extended answers
+- Use `--debug` flag to view tokenization and model loading info
+
+---
+
+## 5. Validating Your Setup
+
+Successful inference means the model:
+
+- Loads without errors
+- Accepts image input and pre-processes it correctly
+- Generates text output relevant to your prompt
+
+You can validate by:
+
+- Running inference on sample images provided in the repo (e.g., `examples/waterview.jpg`)
+- Confirming the output text is meaningful and contextually aligned
+- Checking log output for absence of error messages
+
+---
+
+## 6. Tips for a Smooth First Experience
+
+- Use relatively small images (e.g., 224x224 or 480x480) to speed up processing
+- Keep prompts clear and straightforward for best initial results
+- Start with lower temperatures (around 0.2) to get deterministic responses
+- Make sure your Python environment matches prerequisites (GPU vs CPU/MPS)
+
+---
+
+## 7. Next Steps
+
+After mastering this first inference flow, you can explore:
+
+- Batch inference pipelines
+- Fine-tuning and training your models
+- Running the Gradio web server UI for interactive chat
+- Exporting models for deployment on Apple Silicon devices
+
+Links:
+- [Installation & Environment Setup](/getting-started/setup-local-inference/installation)
+- [Downloading Pretrained Models](/getting-started/setup-local-inference/download-models)
+- [Interactive Chat with FastVLM via Web Interface](/guides/core-workflows/using-gradio-web)
+- [Exporting Models for Apple Silicon](/getting-started/apple-device-inference/apple-silicon-export)
+
+---
+
+## Appendix: Full CLI Arguments Example
+
+```bash
+python llava/serve/cli.py \
+  --model-path ./llava-v1.5-13b \
+  --image-file ./examples/extreme_ironing.jpg \
+  --device cuda \
+  --temperature 0.2 \
+  --max-new-tokens 512 \
+  --conv-mode qwen_2 \
+  --load-8bit
+```
+
+## Appendix: Running Inference Programmatically
+
+For users integrating FastVLM inference into Python scripts, refer to [`predict.py`](predict.py) in the repository. This script demonstrates loading a model checkpoint, preprocessing the image and prompt, running generation, and decoding the output.
+
+---
+
+<Tip>
+Starting with the command-line interface is the fastest way to validate your FastVLM setup and get familiar with model behavior on your own images.
+</Tip>
+
+<Warning>
+Ensure the image file path is correct and accessible. The model expects RGB images; other formats may cause errors or incorrect processing.
+</Warning>
+
+<Note>
+The conversation templates (`conv-mode`) are typically auto-detected based on the model. Manual override is available for advanced workflows.
+</Note>

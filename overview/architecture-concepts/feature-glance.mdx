@@ -1,0 +1,211 @@
+---
+title: "Feature Overview"
+description: "A rapid guide to FastVLM’s core and advanced features—including model zoo, training/fine-tuning support, support for multiple LLM backbones, mobile deployment, and fast inference. Reference at-a-glance what users can accomplish out of the box."
+---
+
+# Feature Overview
+
+Unlock FastVLM’s rapid capabilities with this quick guide to its core and advanced features. This page serves as your essential reference to understand what FastVLM brings out of the box—from the breadth of models available to its flexible training and fine-tuning, multiple large language model (LLM) backbone support, seamless mobile deployment options, and blazing fast inference performance.
+
+---
+
+## Core Features at a Glance
+
+FastVLM is designed to offer both versatility and speed, empowering researchers and developers to build and adapt vision-language applications effortlessly. Here’s what you gain access to immediately:
+
+- **Extensive Model Zoo:** Access pretrained FastVLM models across multiple sizes (0.5B, 1.5B, 7B parameters) and training stages, optimized for different accuracy and latency trade-offs.
+
+- **Hybrid Vision Encoder Integration:** Leverage FastViTHD, the core hybrid vision encoder, for significantly faster high-resolution image processing compared to traditional vision towers.
+
+- **Support for Multiple LLM Backbones:** Flexibly integrate your choice of LLMs, such as Qwen2 variants, with FastVLM’s modular architecture.
+
+- **Training and Fine-tuning Ready:** Start from pretrained weights or train custom variants using the LLaVA codebase alongside FastVLM’s well-structured APIs.
+
+- **Mobile and Apple Silicon Deployment:** Benefit from ready pathways to export vision encoders to CoreML format and optimized LLM checkpoints for high-performance inference on mobile devices and Apple Silicon Macs.
+
+- **Fast Inference with Low Latency:** Experience dramatically improved Time-to-First-Token (TTFT) speeds, enabling real-time or near-real-time vision-language interaction.
+
+---
+
+## Exploring the Model Zoo
+
+FastVLM offers a curated selection of pretrained checkpoints that span multiple model scales and training progression stages. This variety allows you to select the best model fitting your accuracy requirements and runtime constraints. Notable points include:
+
+- **Model Sizes:** Smaller 0.5B models accelerate latency-sensitive applications, while larger 7B models push the boundaries of accuracy.
+
+- **Training Stages:** Models are checkpointed at stage 2 and stage 3 for flexible fine-tuning or immediate use.
+
+- **Model URLs:** Download pretrained weights from official CDN links and integrate directly into your pipeline.
+
+Use the following command to download all models:
+
+```bash
+bash get_models.sh
+```
+
+---
+
+## Flexible Vision Encoder Architecture
+
+At FastVLM’s heart is the FastViTHD hybrid vision encoder that intelligently balances token count and processing speed. This encoder is:
+
+- Tuned for high-resolution images with fewer tokens but rich representations.
+- Exportable to CoreML for Apple platform acceleration.
+- Interchangeable within the FastVLM model architecture, enabling custom deployments.
+
+Users can also switch between different encoder implementations (like MobileCLIP or CLIPVisionTower) depending on performance targets and hardware.
+
+---
+
+## Multi-Backbone LLM Support
+
+FastVLM’s architecture supports multiple LLM backbones, notably the Qwen2-based language model as the default. With direct integration:
+
+- You can easily swap or upgrade the LLM component without re-engineering the entire pipeline.
+- The language model seamlessly accepts image features projected by the multi-modal projector.
+- Generation APIs support multimodal inputs for flexible reasoning and response generation.
+
+This modularity enables experimentation on LLM configurations, fine-tuning schemes, and generation styles.
+
+---
+
+## Training and Fine-Tuning Capabilities
+
+Designed with extensibility in mind, FastVLM supports end-to-end training workflows leveraging the LLaVA codebase. Key user activities include:
+
+- Fine-tuning on custom multimodal datasets leveraging pretrained vision and language weights.
+- Applying LoRA adapters for efficient and targeted parameter tuning.
+- Adjusting vision tower tunability to balance performance and training cost.
+
+These capabilities ensure you can adapt FastVLM to your specific domain or task with minimal overhead.
+
+---
+
+## Accelerated Mobile Deployment
+
+FastVLM supports ready-to-go export and inference on Apple Silicon and iOS devices, unlocking on-device privacy and responsiveness:
+
+- Use the provided `export_vision_encoder.py` script to export the FastViTHD vision encoder to the CoreML `.mlpackage` format.
+  
+- Convert your PyTorch checkpoint with the customized mlx-vlm converter to generate efficient LLM-only inference packages.
+
+- Run inference via command line or integrate into mobile apps with optimized CoreML backend acceleration.
+
+This allows developers to bring powerful vision-language applications directly to end users without cloud dependency.
+
+---
+
+## Fast Inference Workflow
+
+FastVLM offers fast, streamlined inference with minimal setup:
+
+1. **Load Pretrained Model:** Use the provided Python APIs or CLI tools to load pretrained weights.
+2. **Preprocess Images:** Apply the built-in image processors fine-tuned for FastViTHD input.
+3. **Prepare Multimodal Prompt:** Insert image tokens properly with prompt templates supporting multimodal dialogue.
+4. **Run Generation:** Generate responses quickly thanks to FastVLM’s optimized embedding fusion and language model.
+
+Sample command to run inference:
+
+```bash
+python predict.py --model-path /path/to/checkpoint \
+                  --image-file /path/to/image.png \
+                  --prompt "Describe the image."
+```
+
+---
+
+## Practical Tips and Best Practices
+
+- When fine-tuning, consider unfreezing the vision tower only if necessary to save training time.
+- Leverage the multi-scale CLIP encoder variants when experimenting with resolution trade-offs.
+- Use model conversion tooling carefully; verify quantization steps to maintain accuracy on-device.
+- For mobile deployment, always test inference speed and memory consumption across your target devices.
+
+---
+
+## Troubleshooting and Validation
+
+- Ensure the `<image>` token is properly set in your tokenizer configuration when exporting models.
+- In case of errors during CoreML export, check that PyTorch vision towers are properly traced.
+- Validate model outputs on a known test image prior to integration.
+- Review logs when loading models to confirm correct vision tower selection and tuning flags.
+
+---
+
+By mastering these features and workflows, you’re fully equipped to unlock FastVLM’s exceptional speed and versatility in your vision-language applications.
+
+For further exploration, see these related pages:
+- [What is FastVLM?](/overview/intro-value/fastvlm-overview)
+- [System Architecture & Data Flow](/overview/architecture-concepts/system-architecture)
+- [Inference & Model Export for Apple Silicon](/guides/platform-integration/apple-silicon-inference)
+
+---
+
+### Example Diagram: Feature Interactions
+
+```mermaid
+flowchart TD
+  A[User Input: Image + Text Prompt] --> B[Image Encoding with FastViTHD]
+  B --> C[Multi-Modal Projector: Projects image features to LLM space]
+  C --> D[LLM Backbone (Qwen2) processes multimodal embeddings]
+  D --> E[Generates output tokens]
+  E --> F[Text Response]
+
+  subgraph Model Components
+    B
+    C
+    D
+  end
+
+  subgraph Deployment Targets
+    G[Desktop
+ & Server]
+    H[Mobile & Apple Silicon Devices]
+  end
+
+  D -->|Exported Model| G
+  D -->|CoreML converted model| H
+  B -->|CoreML Vision Encoder Export| H
+
+  style A fill:#f9f,stroke:#333,stroke-width:2px
+  style F fill:#bbf,stroke:#333,stroke-width:2px
+  style G fill:#eef,stroke:#333,stroke-width:1px,stroke-dasharray: 4 2
+  style H fill:#efe,stroke:#333,stroke-width:1px,stroke-dasharray: 4 2
+```
+
+---
+
+## Code Snippet: Loading FastVLM Model (Python)
+
+```python
+from llava.model.builder import load_pretrained_model
+
+model_path = "/path/to/fastvlm-checkpoint"
+tokenizer, model, image_processor, context_len = load_pretrained_model(
+    model_path,
+    model_base=None,
+    model_name="fastvlm_7b",
+    device="cuda"
+)
+
+# Preprocess an image
+from PIL import Image
+image = Image.open("image.png").convert("RGB")
+image_tensor = image_processor([image], model.config)[0].to(device="cuda")
+
+# Prepare input prompt
+prompt = "Describe the image."
+
+# Generate output
+output = model.generate(
+    input_ids=tokenizer(prompt, return_tensors="pt").input_ids.to("cuda"),
+    images=image_tensor.unsqueeze(0),
+    max_new_tokens=256
+)
+print(tokenizer.decode(output[0], skip_special_tokens=True))
+```
+
+---
+
+Explore and leverage this feature suite to power your efficient vision-language model applications today!
+

@@ -1,0 +1,128 @@
+---
+title: "Target Audience & Use Cases"
+description: "Identify whether FastVLM fits your needs. This page outlines the primary user groups—AI researchers, app developers, and ML practitioners—and walks through key scenarios including mobile inference, real-time captioning, and high-speed vision-language applications."
+---
+
+# Target Audience & Use Cases
+
+FastVLM is engineered to revolutionize vision-language modeling by delivering unmatched speed and efficiency without compromising accuracy. This page helps you determine if FastVLM aligns with your needs by detailing the core user groups that benefit most from its capabilities and explores key scenarios where FastVLM excels — from mobile inference to real-time captioning and demanding vision-language workflows.
+
+---
+
+## Who Should Consider FastVLM?
+
+FastVLM is designed for professionals and organizations seeking high-performance vision-language solutions optimized for resource-constrained environments. Specifically, it targets:
+
+- **AI Researchers:** Need rapid prototyping and testing of large vision-language models with faster Time-To-First-Token for experiments involving high-resolution images.
+- **Application Developers:** Require efficient models that can run on-device, especially iOS and macOS platforms, enabling interactive applications without reliance on cloud infrastructure.
+- **Machine Learning Practitioners:** Focused on integrating vision-language models into real-time or latency-critical settings, such as AR, robotics, or assistive technologies.
+
+If your work demands a balance of accuracy, speed, and compactness — especially for edge or mobile deployment — FastVLM is tailored for you.
+
+---
+
+## Key Use Cases
+
+### 1. Mobile & Edge Inference
+
+FastVLM’s compact, highly optimized architecture makes it ideal for running directly on Apple Silicon devices such as iPhones, iPads, and Macs. This results in:
+
+- **Instantaneous responses:** Thanks to FastViTHD, the hybrid encoder that reduces token overhead, inference latency is drastically minimized.
+- **Privacy-preserving processing:** All computations happen on-device without sending data externally.
+- **Battery-friendly performance:** The model’s efficiency ensures longer device utilization and smoother user experiences.
+
+Example:
+
+> A retail app uses FastVLM to analyze product images on a customer’s iPhone and provide instant visual question answering about product details without internet connectivity.
+
+### 2. Real-Time Captioning & Vision-Language Interaction
+
+For applications requiring fluid, conversational interaction with images or videos, FastVLM delivers with:
+
+- **Rapid Time-To-First-Token (TTFT):** Enables the model to start generating relevant textual output quickly.
+- **Support for high-resolution inputs:** Efficiently handles large images while maintaining output quality.
+
+Example:
+
+> An assistive communication device uses FastVLM to caption live camera feeds to help users with visual impairments understand their surroundings in real-time.
+
+### 3. High-Speed Vision-Language Applications
+
+FastVLM shines in scenarios where throughput and responsiveness are critical, including:
+
+- Interactive robot perception combining vision and language signals.
+- Large-scale content moderation systems that assess visual and textual inputs swiftly.
+- Augmented reality experiences where timely scene understanding enhances user immersion.
+
+Example:
+
+> A robotics platform leverages FastVLM to interpret visual cues with natural language commands on the edge, enabling agile and context-aware robot behaviors.
+
+---
+
+## Before and After FastVLM
+
+| Scenario                         | Before FastVLM                            | After FastVLM                          |
+|---------------------------------|-----------------------------------------|--------------------------------------|
+| Running on mobile devices        | Slow encoding, large models, cloud reliance | Native on-device inference, rapid TTFT |
+| Interactive vision-language chat | Delay due to large vision encoders       | Instant response and fluid conversations |
+| Handling high-res images         | Resource-heavy and slow processing       | Efficient encoding with reduced token counts |
+
+---
+
+## Benefits Summary
+
+- **Speed:** Dramatically reduces vision encoder latency to improve responsiveness.
+- **Efficiency:** Smaller model footprint enables deployment on constrained devices.
+- **Accuracy:** Maintains competitive performance for vision-language tasks.
+- **Flexibility:** Supports multiple pretrained sizes to fit specific resource and accuracy requirements.
+- **Privacy:** Enables fully on-device processing to protect user data.
+
+---
+
+## Getting Started Preview
+
+Begin your FastVLM journey by selecting a pretrained model matching your device and needs, whether it’s the ultra-compact 0.5B for swift mobile apps or the accurate 7B for desktop applications. Download models using the provided scripts and move through inference steps detailed in the [Getting Started Guide](/getting-started/setup-local-inference/download-models).
+
+### Prerequisites
+
+- Access to Apple Silicon hardware for optimal performance.
+- Familiarity with running inference scripts or using the FastVLM demo app on iOS/macOS.
+
+### Next Steps
+
+- Explore the [What Is FastVLM?](/overview/intro-value/fastvlm-overview) page for a fundamental grasp of the product.
+- Review the [Core Value Proposition](/overview/intro-value/core-value-prop) to understand the detailed benefits.
+- Proceed to [Running Your First Inference](/getting-started/setup-local-inference/first-inference) to see FastVLM in action.
+
+---
+
+For additional real-world scenarios, supported devices, and recommended best practices, consult the extended guides on mobile app integration and Apple Silicon optimization.
+
+
+---
+
+# Frequently Asked Questions
+
+<AccordionGroup title="FAQs">
+<Accordion title="Can FastVLM be used on non-Apple Silicon devices?">
+Currently, FastVLM is optimized for Apple Silicon chips to maximize efficiency and acceleration. While it can run on other platforms, performance and integration may be suboptimal.
+</Accordion>
+<Accordion title="What are the different FastVLM model sizes for?">
+Three sizes are provided to balance speed, resource usage, and accuracy: 0.5B for lightweight mobile tasks, 1.5B as a balanced choice, and 7B for high-accuracy desktop or edge scenarios.
+</Accordion>
+<Accordion title="Does FastVLM support real-time video input?">
+FastVLM’s architecture is well-suited for rapid processing and can be integrated into real-time video pipelines, though deployment specifics depend on your application.
+</Accordion>
+<Accordion title="How do I customize prompts or queries?">
+The FastVLM app includes flexible built-in prompts and supports user-customized inputs, streamlining your ability to tailor model interactions.
+</Accordion>
+</AccordionGroup>
+
+---
+
+For a deeper dive into FastVLM’s capabilities and to start building your vision-language applications, head to the related documentation in this series.
+
+---
+
+*This page is part of the FastVLM documentation suite, guiding users from introduction through deployment.*

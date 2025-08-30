@@ -1,0 +1,245 @@
+---
+title: "Optimizing Latency and Throughput"
+description: "Explore practical optimization strategies for reducing response time and improving throughput during inference and training, including vision encoder configuration, quantization options, and hardware-specific considerations."
+---
+
+# Optimizing Latency and Throughput
+
+Optimize your FastVLM model training and inference workflows by applying practical strategies to reduce response times and improve throughput. This guide focuses on key areas such as vision encoder configuration, quantization techniques, and hardware-specific considerations to maximize speed without sacrificing accuracy.
+
+---
+
+## Workflow Overview
+
+### Objective
+Help you optimize latency (response time) and throughput (processing capacity) when training or running inference on FastVLM models.
+
+### Prerequisites
+- Familiarity with FastVLM setup and basic usage.
+- Access to hardware with GPU acceleration.
+- Understanding of model parameters and usage patterns.
+
+### Expected Outcome
+- Gain practical knowledge to configure vision encoders and language models for faster execution.
+- Learn to effectively use quantization and memory-efficient techniques.
+- Understand hardware-specific tuning for best performance.
+
+### Time Estimate
+15-30 minutes for applying recommended optimizations and validating performance gains.
+
+### Difficulty Level
+Intermediate, assumes familiarity with ML model training and inference concepts.
+
+---
+
+## 1. Vision Encoder Configuration for Faster Processing
+
+FastVLM adopts a hybrid vision encoder (FastViTHD) with flexible configuration parameters. Adjusting these can directly improve latency and throughput.
+
+### Key Tips
+
+- **Token Reduction**: Choose vision encoders that minimize the number of output tokens. Fewer tokens reduce computation downstream, accelerating time-to-first-token (TTFT).
+  - Example: Use FastViTHD variants optimized to produce less dense vision tokens, speeding up encoding by up to 85x on small models.
+
+- **Image Resolution & Aspect Ratio**:
+  - For training and inference, set image pre-processing parameters (`image_aspect_ratio`, `image_crop_resolution`, `image_split_resolution`) consistent with your use case.
+  - Using `anyres` or `anyres_max` aspect ratios allows adaptive resizing with minimal distortion.
+
+- **Patch Tokenization**:
+  - Toggle the use of image patch tokens (`mm_use_im_patch_token`) depending on the vision tower capabilities. Patch tokens enable efficient summarization but may add overhead if not properly tuned.
+
+- **Start/End Tokens**:
+  - Enabling `mm_use_im_start_end` inserts explicit start and end tokens around image tokens, which may affect model's token consumption; consider disabling for speed unless required.
+
+### How to Apply:
+
+Update relevant parameters when launching training or inference by setting them in the model or data arguments (e.g., in `train.py` or `train_qwen.py`):
+
+```python
+# Sample training argument overrides
+training_args = TrainingArguments(
+    ...
+    mm_use_im_patch_token=True,        # Enable patch token processing
+    mm_use_im_start_end=False,          # Disable start/end tokens for faster processing
+)
+data_args.image_aspect_ratio = 'anyres'
+```
+
+
+## 2. Quantization Techniques
+
+Applying quantization to the model weights reduces memory footprint and accelerates computation.
+
+### Supported Options
+
+- **Bits**: Choose 4, 8, or 16 bits precision.
+  - Example: `bits=4` enables 4-bit quantization.
+
+- **Quantization Types**: Use `nf4` or `fp4` quantization.
+
+- **Double Quantization**: When enabled (`double_quant=True`), compresses quantization statistics further for speed and memory.
+
+### How to Use
+
+Set these options in your training or inference commands or scripts:
+
+```bash
+python train.py --bits 4 --quant_type nf4 --double_quant
+```
+
+or programmatically:
+
+```python
+training_args.bits = 4
+training_args.quant_type = 'nf4'
+training_args.double_quant = True
+```
+
+### Best Practices
+- For inference, 4-bit quantization offers significant speedups with minor accuracy loss.
+- Validate performance impact in your use scenario since extreme quantization may degrade results.
+
+---
+
+## 3. Hardware-Specific Considerations
+
+Optimizing for your hardware ensures maximum utilization and throughput.
+
+### GPU Considerations
+
+- **Batch Size & Concurrency**: Adjust batch sizes carefully to balance GPU memory and throughput.
+- **Model Loading**: Use options like `load_4bit` or `load_8bit` to reduce VRAM usage.
+- **Attention Implementations**: For specific models such as MPT, you can select attention implementations (e.g., `mpt_attn_impl='triton'`) for optimized kernels.
+
+### CPU & Apple Silicon
+
+- Follow dedicated guides for exporting models for Apple Silicon for efficient on-device inference.
+- See [Apple Silicon Inference Guide](/guides/platform-integration/apple-silicon-inference) for detailed workflows.
+
+## 4. Leveraging LoRA and Adapter Fine-tuning
+
+Applying parameter-efficient fine-tuning techniques can reduce training time and resource requirements, indirectly improving throughput.
+
+- Enable LoRA fine-tuning (`lora_enable=True`) to train adapters without full model updates.
+- Configure LoRA hyperparameters such as rank (`lora_r`), alpha (`lora_alpha`), and dropout (`lora_dropout`) for best results.
+
+Example snippet:
+
+```python
+training_args.lora_enable = True
+training_args.lora_r = 64
+training_args.lora_alpha = 16
+training_args.lora_dropout = 0.05
+```
+
+
+---
+
+## Step-by-Step Instructions to Optimize Inference
+
+<Steps>
+<Step title="Step 1: Identify Your Model and Use Case">
+Understand if your model is multimodal (FastVLM with visual input) or text-only, and define latency or throughput priorities.
+</Step>
+<Step title="Step 2: Configure Vision Encoder Settings">
+Adjust image pre-processing arguments and patch token usage as per best practices to reduce input size and token count.
+</Step>
+<Step title="Step 3: Enable Quantization">
+Activate 4 or 8-bit quantization with `double_quant` enabled for best compression and acceleration.
+</Step>
+<Step title="Step 4: Optimize Batch Size and Concurrency">
+Tune `limit_model_concurrency` in the server or worker settings to match your hardware capacity.
+</Step>
+<Step title="Step 5: Use Efficient Attention Implementations (if applicable)">
+For models like MPT, choose optimized attention kernels such as 'triton'.
+</Step>
+<Step title="Step 6: Monitor and Tune Throughput and Latency">
+Use logs, heartbeats, and runtime metrics to evaluate improvements and prevent bottlenecks.
+</Step>
+</Steps>
+
+---
+
+## Examples & Configuration Snippets
+
+### Training Argument Configuration
+
+```python
+from llava.train.train import TrainingArguments
+
+training_args = TrainingArguments(
+    bits=4,
+    quant_type='nf4',
+    double_quant=True,
+    mm_use_im_patch_token=True,
+    mm_use_im_start_end=False,
+    mpt_attn_impl='triton',    # For MPT models
+    limit_model_concurrency=5,
+    lora_enable=True,
+    lora_r=64,
+    lora_alpha=16,
+    lora_dropout=0.05,
+)
+```
+
+### Command Line Example for Training with Quantization
+
+```bash
+python train.py --bits 4 --quant_type nf4 --double_quant --limit-model-concurrency 10
+```
+
+### Tuning Model Worker Concurrency
+
+In `model_worker.py`, set semaphore limit to control maximum parallel executions:
+
+```python
+model_semaphore = asyncio.Semaphore(args.limit_model_concurrency)  # Default: 5
+```
+
+Increase the concurrency parameter based on available GPU memory and expected load.
+
+---
+
+## Troubleshooting & Tips
+
+### Common Issues
+
+- **Token count mismatch with images:** Ensure number of images matches `<image>` tokens in prompts to avoid errors.
+- **OOM Errors:** Reduce batch size, enable 4-bit quantization, or limit concurrency to fit in GPU memory.
+- **Latency spikes:** Check for excessive image sizes or unoptimized attention implementations.
+
+### Tips
+
+- Use the smallest effective image resolution for your task to reduce encoding overhead.
+- Validate your tokenizer configuration, including padding tokens and special tokens for images.
+- When fine-tuning, freeze backbone modules to save memory and speed training.
+- Consider enabling gradient checkpointing for memory savings during training, trading off execution speed.
+
+---
+
+## Next Steps & Related Content
+
+- Explore [Fine-tuning & Training Custom FastVLM Models](/guides/core-workflows/finetuning-models) for deeper control over training parameters.
+- Visit [Running Inference with FastVLM](/guides/core-workflows/inference-basics) to apply optimized parameters at inference time.
+- For Apple hardware, refer to [Inference & Model Export for Apple Silicon](/guides/platform-integration/apple-silicon-inference) to optimize models for Mac/iOS.
+- Review [Best Practices for Reliable Model Deployment](/guides/performance-best-practices/best-practices) for infrastructure-level tips.
+
+---
+
+## Summary
+Optimizing latency and throughput in FastVLM revolves around tuning vision encoder settings, applying quantization strategies, and aligning configurations with your hardware. This guide equips you with actionable steps and configurations to accelerate both training and inference, ensuring efficient utilization of resources.
+
+For complete onboarding with FastVLM, combine these optimizations with the broader setup, training, and inference guides available.
+
+---
+
+## References
+- [FastVLM Model Zoo and Usage](https://github.com/apple/ml-fastvlm#model-zoo)
+- `llava/train/train.py` and `train_qwen.py` for training argument details
+- `llava/serve/model_worker.py` for concurrency control and inference optimizations
+- [FastVLM Architecture & Data Flow](/overview/architecture-concepts/system-architecture)
+- [Apple Silicon Export Guide](/guides/platform-integration/apple-silicon-inference)
+
+---
+
+**End of Optimizing Latency and Throughput Guide**

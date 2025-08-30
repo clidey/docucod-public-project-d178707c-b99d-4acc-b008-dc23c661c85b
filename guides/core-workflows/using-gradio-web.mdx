@@ -1,0 +1,235 @@
+---
+title: "Interactive Chat with FastVLM via Web Interface"
+description: "Step-by-step instructions for launching the Gradio web server to interact with FastVLM visually and textually in your browser. Includes directions for managing models, providing inputs, and utilizing model switching and feedback features."
+---
+
+# Interactive Chat with FastVLM via Web Interface
+
+Welcome to the guide for using the **FastVLM interactive web interface** powered by Gradio. This documentation walks you through launching the Gradio server locally, interacting with FastVLM in your browser via chat, managing models, providing text and images as input, and utilizing advanced features like model switching and feedback.
+
+---
+
+## 1. Overview
+
+This page covers how to:
+
+- Start the Gradio-based FastVLM web server.
+- Select and switch between available FastVLM models.
+- Provide inputs (text and images) to the chatbot.
+- Monitor and control inference tokens and parameters.
+- Submit feedback such as upvote, downvote, and flag responses.
+
+## 2. Prerequisites
+
+Before starting, ensure you have:
+
+- A running FastVLM controller server (`controller.py`) managing model workers.
+- At least one live FastVLM model worker (`model_worker.py` or similar).
+- Python environment with all dependencies installed, including Gradio.
+- Network access between your web server and controller/worker addresses.
+
+If new to FastVLM, see the [Prerequisites & System Requirements](/getting-started/setup-local-inference/prerequisites) and [Installation & Environment Setup](/getting-started/setup-local-inference/installation) guides.
+
+## 3. Starting the Gradio Web Server
+
+Launch the server with the following command in your terminal:
+
+```bash
+python -m llava.serve.gradio_web_server --host 0.0.0.0 --port 7860 --controller-url http://localhost:21001
+```
+
+- Replace `--host` and `--port` as needed.
+- `--controller-url` should point to your running controller server.
+- Optional flags:
+  - `--moderate` to enable input moderation.
+  - `--model-list-mode` with `once` (default) or `reload` to control model refresh behavior.
+  - `--concurrency-count` sets how many simultaneous requests are handled.
+
+Once running, open your browser at `http://host:port` (e.g., `http://localhost:7860`).
+
+## 4. User Interface Walkthrough
+
+### 4.1 Model Selection
+
+- Dropdown menu shows available FastVLM models discovered via the controller.
+- Models are loaded and refreshed automatically based on `model-list-mode`.
+- Select any model to begin chatting.
+
+### 4.2 Input Area
+
+- **Text Box**: Enter natural language queries or commands.
+- **Image Upload**: Upload images using the image component.
+- Images are automatically linked to the prompt by appending `<image>` tokens as needed.
+- You can preprocess non-square images using the hidden "Preprocess for non-square image" option (`Crop`, `Resize`, `Pad`, or `Default`).
+
+### 4.3 Conversation Area
+
+- Shows the ongoing chat in a scrollable panel.
+- User inputs and FastVLM responses are rendered distinctly.
+- Supports embedding images inline with the chat.
+
+### 4.4 Parameters Accordion
+
+- **Temperature**: Controls randomness of responses (0.0 to 1.0).
+- **Top P**: Nucleus sampling parameter to control diversity.
+- **Max output tokens**: Limits reply length.
+
+### 4.5 Action Buttons
+
+- **Send**: Submit the input for processing.
+- **Upvote/Downvote/Flag**: Provide feedback on the latest assistant response.
+- **Regenerate**: Retry the previous question to get a new answer.
+- **Clear**: Reset conversation and state.
+
+## 5. Using the Chat Interface
+
+### Step 1: Select Your Model
+
+Choose a FastVLM model from the dropdown. The list reflects available models registered with the controller.
+
+### Step 2: Compose Input
+
+- Type your question or instruction.
+- Upload an image if your query involves visual content.
+- The system appends `<image>` tokens automatically as needed.
+
+### Step 3: Submit Query
+
+- Press Enter or click Send.
+- The chatbot sends your prompt (including images) to the FastVLM worker via the controller.
+- Inference tokens stream back in real time.
+
+### Step 4: Read Response
+
+- Responses appear progressively with a cursor animation (`▌`) showing ongoing generation.
+- Once complete, the cursor disappears.
+
+### Step 5: Provide Feedback (Optional)
+
+- Use Upvote/Downvote/Flag to rate responses.
+- Your feedback is logged with timestamp, model, and user IP for ongoing quality improvement.
+
+### Step 6: Regenerate or Clear
+
+- Click Regenerate for a fresh response to the same prompt.
+- Click Clear to start a new conversation session.
+
+## 6. Technical Workflow Details
+
+When you submit a prompt:
+
+- The interface builds a conversational prompt following the model's conversation template.
+- It retrieves the best worker address for the model from the controller.
+- All user-uploaded images are processed and cached.
+- The prompt and images are sent via streaming HTTP POST to the worker's `/worker_generate_stream` endpoint.
+- Responses stream back in chunks and update the chat UI in real time.
+
+This setup allows efficient load balancing of models via the controller's worker selection policies.
+
+## 7. Tips & Best Practices
+
+- For best user experience, use modern desktop browsers supporting WebSockets and streaming responses.
+- Avoid very large images or many images in a single prompt to minimize latency.
+- Adjust temperature and top_p parameters for desired output creativity.
+- Use the Clear function often to prevent overly long conversations which can harm response relevance.
+
+## 8. Common Issues & Troubleshooting
+
+<AccordionGroup title="Troubleshooting Common Issues">
+<Accordion title="No models show up in the dropdown">Ensure your controller (`controller.py`) and at least one worker server are running and connected. Check network settings and logs for errors.</Accordion>
+<Accordion title="Responses do not appear or are incomplete">Verify the worker server is alive and reachable. Confirm that streaming API endpoints are functional and that your network is stable.</Accordion>
+<Accordion title="Image inputs are ignored or errors mention mismatched images vs tokens">Make sure your prompt contains the exact number of `<image>` tokens matching the uploaded images.</Accordion>
+<Accordion title="Browser freezes or inputs lag">Reduce concurrency count or use a more powerful machine to run the server. Use desktop browsers for optimized performance.</Accordion>
+</AccordionGroup>
+
+## 9. Advanced Usage
+
+### Model Refresh Modes
+
+- `once` (default): Fetches available models once at startup.
+- `reload`: Fetches model list every time the page loads.
+
+This controls how often the client queries the controller for model updates.
+
+### Input Moderation
+
+Enable the `--moderate` flag to activate automatic text moderation using OpenAI’s moderation API, blocking flagged content from being submitted.
+
+### Logging & Data
+
+- Conversations, responses, images, and feedback votes are logged to disk under `logs/conv.json` and related folders.
+- Useful for audit, replay, or training data generation.
+
+## 10. Example Session Flow
+
+```text
+User: [uploads photo of a sunset]
+User Input: Describe this scene.
+
+FastVLM Assistant: The image shows a beautiful sunset with fiery orange and pink hues reflecting across a calm lake... 
+
+User: What colors dominate the sky?
+
+FastVLM Assistant: The sky is dominated by various shades of orange, pink, and some purple near the horizon.
+
+User clicks Upvote to approve response.
+```
+
+## 11. Next Steps
+
+After mastering the web interface usage, explore these related guides:
+
+- [Running Inference with FastVLM CLI](/guides/core-workflows/inference-basics) to automate batch or scripted usage.
+- [Fine-tuning & Training Custom Models](/guides/core-workflows/finetuning-models) to customize model behavior.
+- [Exporting Models for Apple Silicon](/getting-started/apple-device-inference/apple-silicon-export) for on-device deployment.
+- [Running the Demo App on iOS Devices](/getting-started/apple-device-inference/running-mobile-app) for mobile experimentation.
+
+
+---
+
+## Appendix: Key Command-Line Flags for `gradio_web_server.py`
+
+| Argument           | Description                                                   | Default            |
+|--------------------|---------------------------------------------------------------|--------------------|
+| `--host`           | IP address to listen on                                        | `0.0.0.0`          |
+| `--port`           | Port number for the web server                                 | (required)         |
+| `--controller-url` | URL address of the controller server managing model workers   | `http://localhost:21001` |
+| `--concurrency-count` | Number of concurrent chat requests allowed                 | `16`               |
+| `--model-list-mode` | How often to refresh model lists (`once` or `reload`)         | `once`             |
+| `--moderate`       | Enable input text moderation                                   | `False`            |
+| `--share`          | Make the Gradio app shareable via public link                  | `False`            |
+
+
+---
+
+## Frequently Asked Questions
+
+**Q1: Can I add my own models to the web interface?**
+
+**A:** Yes. Ensure your model worker registers with the controller server. The web server queries the controller to list available models.
+
+**Q2: How do images get integrated into the conversation prompt?**
+
+**A:** Uploaded images are encoded and linked to `<image>` tokens in the prompt text. The models recognize these tokens to fetch visual features.
+
+**Q3: Can I run the web interface remotely?
+
+**A:** Yes, specify `--host` accordingly and expose the port. Ensure proper firewall and security.
+
+**Q4: What if my response generation stops midway or errors appear?**
+
+**A:** Check your worker server logs and ensure stable GPU resources. Restart if necessary.
+
+
+---
+
+For the complete platform and workflow, examine the related documentation:
+
+- [FastVLM System Architecture & Data Flow](/overview/architecture-concepts/system-architecture)
+- [Running Inference with FastVLM CLI](/guides/core-workflows/inference-basics)
+- [Fine-Tuning and Training FastVLM Models](/guides/core-workflows/finetuning-models)
+
+
+---
+
+*You are now ready to interact with FastVLM via this intuitive web interface, combining the power of vision-language models with conversational ease.*

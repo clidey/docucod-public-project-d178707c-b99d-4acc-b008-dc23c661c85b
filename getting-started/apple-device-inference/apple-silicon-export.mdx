@@ -1,0 +1,196 @@
+---
+title: "Exporting Models for Apple Silicon"
+description: "Explain how to convert and export FastVLM models to Apple Silicon–compatible formats, including which scripts and quantization options to use. References the provided export utilities and what to expect as output."
+---
+
+# Exporting Models for Apple Silicon
+
+This page guides you through converting and exporting FastVLM models into Apple Silicon–compatible formats. You'll learn how to use the provided export utilities, select proper quantization options, and understand the expected outputs for seamless deployment on Apple M1/M2 devices.
+
+---
+
+## 1. Overview
+
+FastVLM models trained with PyTorch require conversion to CoreML format for efficient inference on Apple Silicon hardware. This process involves:
+
+- Exporting the vision encoder separately using `coremltools`.
+- Converting the language model component with the patched `mlx-vlm` conversion utility.
+- Applying quantization options to optimize model size and performance.
+
+Completing these steps produces a CoreML-compatible package ready for Apple devices like Mac with Apple Silicon, iPhone, or iPad.
+
+---
+
+## 2. Prerequisites & Setup
+
+Before exporting your FastVLM model:
+
+- Have a PyTorch checkpoint directory of your trained FastVLM model accessible locally.
+- Install necessary Python packages including `coremltools` and `mlx-vlm` with the provided FastVLM patch.
+- Confirm you have Python 3.10+ and a suitable environment configured.
+
+---
+
+## 3. Export Vision Encoder
+
+The vision encoder is exported independently to CoreML format using a dedicated script.
+
+### Steps:
+
+<Steps>
+<Step title="Run Vision Encoder Export Script">
+Execute the following command, replacing the path to your checkpoint:
+
+```bash
+python export_vision_encoder.py --model-path /path/to/fastvlm-checkpoint
+```
+
+This script:
+- Loads your FastVLM model and associated image processor.
+- Adjusts the tokenizer and config files to include the `<image>` token if missing.
+- Traces the vision encoder model using PyTorch's JIT tracer.
+- Converts the traced model to CoreML format (`.mlpackage`).
+- Saves additional processor metadata required for downstream inference.
+
+The output `.mlpackage` file will be located inside your checkpoint directory.
+</Step>
+</Steps>
+
+<Note>
+Ensure your model checkpoint includes the full vision encoder states; the script adds necessary metadata.
+</Note>
+
+---
+
+## 4. Export Full FastVLM Model Using mlx-vlm
+
+Exporting the full FastVLM model (language model + interface) relies on the `mlx-vlm` toolkit with FastVLM specific patches.
+
+### Installation of Patched mlx-vlm
+
+1. Clone the `mlx-vlm` repository.
+
+2. Checkout the specified commit and apply the FastVLM patch:
+
+```bash
+git clone https://github.com/Blaizzy/mlx-vlm.git
+cd mlx-vlm
+git checkout 1884b551bc741f26b2d54d68fa89d4e934b9a3de
+git apply ../fastvlm_mlx-vlm.patch
+pip install -e .
+```
+
+### Export Command
+
+Export only the language model part (excluding vision tower) with:
+
+```bash
+python -m mlx_vlm.convert --hf-path /path/to/fastvlm-checkpoint \
+                          --mlx-path /path/to/exported-fastvlm \
+                          --only-llm
+```
+
+#### Optional Quantization
+
+Add bit quantization flags to reduce model size and improve Apple Silicon performance:
+
+```bash
+python -m mlx_vlm.convert --hf-path /path/to/fastvlm-checkpoint \
+                          --mlx-path /path/to/exported-fastvlm \
+                          --only-llm \
+                          -q \
+                          --q-bits 8  # Use 4 for 4-bit quantization
+```
+
+- `-q` enables quantization.
+- `--q-bits` sets bits per weight.
+
+The export process saves the converted model and copies any pre-existing CoreML vision model files (`.mlpackage`) into the export directory.
+
+<Check>
+Quantization drastically reduces model size but may affect accuracy; test accordingly.
+</Check>
+
+---
+
+## 5. Using the Exported Model
+
+You can run inference using the exported FastVLM CoreML model and language model through the provided `mlx-vlm` generate command:
+
+```bash
+python -m mlx_vlm.generate --model /path/to/exported-fastvlm \
+                           --image /path/to/image.png \
+                           --prompt "Describe the image." \
+                           --max-tokens 256 \
+                           --temp 0.0
+```
+
+This command:
+- Loads the exported CoreML vision encoder transparently.
+- Processes the input image and prompt.
+- Generates text output using the converted language model.
+
+---
+
+## 6. Common Pitfalls & Troubleshooting
+
+<AccordionGroup title="Troubleshooting Export Issues">
+<Accordion title="ValueError on Loading Language Model Weights">
+If you see errors like "ValueError: Received parameters not in model: language_model.lm_head.weight", check your `config.json` in the original checkpoint. Verify that the `tie_word_embeddings` setting matches the model architecture. Adjust it if incorrect and try re-exporting.
+</Accordion>
+<Accordion title="Missing <image> Token in Tokenizer">
+The export script automatically patches the tokenizer to include the `<image>` special token if missing. Ensure your tokenizer config files are writable and located alongside the checkpoint.
+</Accordion>
+<Accordion title="Multiple CoreML Vision Model Files Detected">
+Only one CoreML vision model `.mlpackage` file is supported. Remove or consolidate files if multiple exist in the checkpoint directory.
+</Accordion>
+</AccordionGroup>
+
+<Warning>
+Export and inference on Apple Silicon require macOS environment with support for CoreML (macOS 13+ recommended).
+</Warning>
+
+---
+
+## 7. References & Next Steps
+
+- See the [`model_export/README.md`](model_export/README.md) for more detailed instructions and troubleshooting tips.
+- For deploying on Apple devices like iPhone or iPad, refer to the [Running the Demo App on iPhone, iPad, or Mac](/getting-started/apple-device-inference/running-mobile-app) page.
+- After export, validate your setup by running test images through the local inference script or app demo.
+
+---
+
+## 8. Summary
+
+This guide empowers you to convert FastVLM PyTorch checkpoints into Apple Silicon–compatible CoreML packages by exporting the vision encoder and language model components via specialized scripts and tools. Leveraging quantization options optimizes performance and model size for on-device inference. Following these steps enables seamless integration of FastVLM models into Apple hardware for efficient and fast multimodal AI tasks.
+
+---
+
+## Appendix: Key Commands Overview
+
+```bash
+# Export vision encoder
+python export_vision_encoder.py --model-path /path/to/fastvlm-checkpoint
+
+# Clone, patch, and install mlx-vlm
+git clone https://github.com/Blaizzy/mlx-vlm.git
+cd mlx-vlm
+git checkout 1884b551bc741f26b2d54d68fa89d4e934b9a3de
+git apply ../fastvlm_mlx-vlm.patch
+pip install -e .
+
+# Export language model with quantization example
+python -m mlx_vlm.convert --hf-path /path/to/fastvlm-checkpoint \
+                          --mlx-path /path/to/exported-fastvlm \
+                          --only-llm -q --q-bits 8
+
+# Run inference on exported model
+python -m mlx_vlm.generate --model /path/to/exported-fastvlm \
+                           --image /path/to/image.png \
+                           --prompt "Describe the image." \
+                           --max-tokens 256 --temp 0.0
+```
+
+---
+
+[Back to Getting Started overview](../../overview/intro-value/fastvlm-overview)
