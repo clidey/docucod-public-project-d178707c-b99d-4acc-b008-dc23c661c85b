@@ -1,0 +1,252 @@
+---
+title: "Installation & Environment Setup"
+description: "Step-by-step instructions for installing FastVLM, including setting up a conda environment, installing dependencies, and optional editable installs. This page ensures users can reliably reproduce the setup for both research and deployment scenarios."
+---
+
+# Installation & Environment Setup
+
+Welcome to the FastVLM installation and environment setup guide. This document provides **clear, sequential steps** to help you quickly and reliably install all necessary components, create a dedicated conda environment, install dependencies, and optionally set up an editable installation. By following this guide, you'll prepare a consistent environment for both research and deployment of FastVLM.
+
+---
+
+## 1. Prerequisites
+
+Before beginning the installation, ensure your system meets these requirements:
+
+- **Operating System:** Linux, macOS, or Windows (with WSL2 recommended)
+- **Python Version:** 3.8 or later
+- **Memory:** Minimum 16 GB RAM recommended
+- **Disk Space:** At least 10 GB free for packages and models
+- **GPU (Optional):** CUDA-capable GPU recommended for faster inference but not mandatory
+- **Conda Installation:** Anaconda or Miniconda installed and accessible from your terminal
+
+<Tip>
+If you plan to deploy on Apple Silicon or want to optimize for MPS support, a macOS system with Python 3.8+ and conda is required.
+</Tip>
+
+---
+
+## 2. Creating the Conda Environment
+
+FastVLM relies on a clean and isolated Python environment. Follow these steps to create and activate it:
+
+<Steps>
+<Step title="Create a new conda environment named 'fastvlm-env' with Python 3.9">
+Open your terminal and run:
+
+```bash
+conda create -n fastvlm-env python=3.9 -y
+```
+This step creates a fresh environment with Python 3.9.
+</Step>
+<Step title="Activate the conda environment">
+Activate the newly created environment:
+
+```bash
+conda activate fastvlm-env
+```
+Your prompt should now show `(fastvlm-env)`, indicating you're inside the environment.
+</Step>
+</Steps>
+
+<Note>
+Using conda ensures dependency isolation and prevents conflicts with other Python projects.
+</Note>
+
+---
+
+## 3. Installing FastVLM Dependencies
+
+Once your environment is active, install the core dependencies required to run FastVLM.
+
+<Steps>
+<Step title="Upgrade pip">
+Make sure pip is up to date:
+
+```bash
+pip install --upgrade pip
+```
+</Step>
+<Step title="Install FastVLM core dependencies">
+Install required Python packages, including PyTorch with CUDA support (if applicable), torchvision, transformers, and others:
+
+```bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+pip install transformers accelerate coremltools mlx
+```
+
+> Note: Adjust the PyTorch installation command if using a different CUDA version or CPU-only.
+</Step>
+</Steps>
+
+<Tip>
+For CPU-only installation, you can omit the CUDA index URL and just run:
+
+```bash
+pip install torch torchvision torchaudio
+```
+</Tip>
+
+---
+
+## 4. Installing FastVLM Package
+
+You can install FastVLM either as a regular package (pip install) or as an editable install for development.
+
+<Steps>
+<Step title="Clone the FastVLM repository">
+If you haven't already, clone the repository:
+
+```bash
+git clone https://github.com/apple/ml-fastvlm.git
+cd ml-fastvlm
+```
+</Step>
+<Step title="Editable Install (optional, recommended for development)">
+Inside the cloned directory, run:
+
+```bash
+pip install -e .
+```
+This installs FastVLM in editable mode so local code changes will reflect immediately.
+</Step>
+<Step title="Regular Install">
+Alternatively, you can install FastVLM as a normal package:
+
+```bash
+pip install .
+```
+This installs the package in your environment without editable mode.
+</Step>
+</Steps>
+
+---
+
+## 5. Verifying the Installation
+
+Confirm FastVLM is installed correctly by running a version or import test.
+
+<Steps>
+<Step title="Run a Python shell">
+Open Python:
+
+```bash
+python
+```
+</Step>
+<Step title="Import FastVLM modules">
+Try importing core FastVLM modules:
+
+```python
+from llava.model import LlavaLlamaForCausalLM
+print('FastVLM import successful!')
+```
+If you see no errors and the print message, installation succeeded.
+</Step>
+</Steps>
+
+<Check>
+If you encounter errors, verify your Python version, environment activation, and dependency installation.
+Use `pip list` to check installed packages.
+</Check>
+
+---
+
+## 6. Optional: Setting Up for Editable Development
+
+If you're planning to contribute or customize FastVLM:
+
+- Use `pip install -e .` to install in editable mode
+- Use your favorite IDE pointing to the `ml-fastvlm` directory
+- Follow coding standards and run tests as outlined in the project README
+
+---
+
+## 7. Common Pitfalls & Troubleshooting
+
+<AccordionGroup title="Troubleshooting Tips">
+<Accordion title="Conda environment not found">
+Make sure you have activated your conda environment:
+
+```bash
+conda activate fastvlm-env
+```
+If `conda` is not recognized, add it to your PATH or reinstall Miniconda/Anaconda.
+</Accordion>
+<Accordion title="PyTorch not matching CUDA version">
+Check your CUDA version with `nvidia-smi` or system info. Install the matching PyTorch wheel from https://pytorch.org.
+</Accordion>
+<Accordion title="ImportError after installation">
+Try updating pip and wheel:
+
+```bash
+pip install --upgrade pip wheel
+```
+Also ensure you installed the package inside the active environment.
+</Accordion>
+<Accordion title="Editable install not reflecting changes">
+Restart your Python interpreter or development server after code changes.
+Verify that files are saved inside the cloned repo directory.
+</Accordion>
+</AccordionGroup>
+
+---
+
+## 8. Next Steps
+
+After environment setup:
+
+- Proceed to **Downloading Pretrained Models** to obtain FastVLM checkpoints
+- Explore **Running Your First Inference** to validate your installation
+- Review the **Quick Validation & Troubleshooting** page for common runtime issues
+
+---
+
+## Summary
+This page equipped you with all necessary steps to install FastVLM reliably in a conda environment, install dependencies, verify the setup, and optionally prepare for development with an editable install. You are now ready to move forward to downloading pretrained models and running your first inferences.
+
+---
+
+## Additional Resources
+- [Prerequisites & System Requirements](prerequisites.md) — Ensure hardware and software readiness
+- [Downloading Pretrained Models](download-models.md) — Fetch checkpoints for inference
+- [Running Your First Inference](first-inference.md) — Quickstart with example commands
+- [Troubleshooting & Validation](troubleshooting-validation.md) — Handles common issues
+
+For advanced users planning to deploy on Apple Silicon devices, check the Apple Silicon export guide next.
+
+---
+
+_Last updated: main branch_
+
+---
+
+# Helpful Command Snippets
+
+```bash
+# Create and activate conda env
+conda create -n fastvlm-env python=3.9 -y
+conda activate fastvlm-env
+
+# Upgrade pip
+pip install --upgrade pip
+
+# Install dependencies
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu117
+pip install transformers accelerate coremltools mlx
+
+# Clone repo and editable install
+git clone https://github.com/apple/ml-fastvlm.git
+cd ml-fastvlm
+pip install -e .
+
+# Verify import
+python -c "from llava.model import LlavaLlamaForCausalLM; print('FastVLM ready')"
+```
+
+---
+
+# About This Page
+This documentation is designed to seamlessly integrate into the larger FastVLM Getting Started collection, specifically the 'FastVLM Setup & Local Inference' workflow. It builds directly on system prerequisites and leads you into model download and inference steps, ensuring reliable and reproducible setups for diverse user scenarios.
+
+Any issues or questions about installation should reference this guide first for resolution.
