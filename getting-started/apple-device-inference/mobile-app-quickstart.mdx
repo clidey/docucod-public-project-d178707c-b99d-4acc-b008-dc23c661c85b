@@ -1,0 +1,154 @@
+---
+title: "App Quickstart, Troubleshooting & Validation"
+description: "Covers the out-of-box experience for the FastVLM mobile app: quick smoke tests, what a healthy first launch looks like, permissions setup, and resolving common issues when deploying on real or simulated Apple devices."
+---
+
+# App Quickstart, Troubleshooting & Validation
+
+Welcome to the FastVLM mobile app quickstart guide. This page walks you through the initial out-of-the-box experience on Apple devices, helping you verify the app’s health after installation, set up necessary permissions, and resolve common issues encountered when running the FastVLM demo on real or simulated iPhones, iPads, or Macs.
+
+---
+
+## 1. Quick App Launch & Smoke Test
+
+Getting started with FastVLM’s mobile app is designed to be smooth and immediate. Follow these steps to confirm your app functions correctly right after building and launching.
+
+### Step 1: Launch the FastVLM App
+
+- Open the project in Xcode and run it on your real device or simulator (iPhone, iPad, or Mac).
+- The app supports iOS 18.2+ and macOS 15.2+.
+
+### Step 2: Verify Initial Loading
+
+- Once launched, observe the splash screen and app home screen.
+- A healthy first launch will populate built-in prompts and show the main UI with buttons for loading images and inputting questions.
+
+### Step 3: Run a Smoke Test Inference
+
+- Use the camera input or select a test image from your Photos if available.
+- Tap **Prompts** in the top-right corner and select one of the predefined prompts (e.g., “Describe the image.”).
+- Submit the prompt to start inference.
+
+### Expected Result:
+
+- The app should respond within a few seconds, displaying a text answer describing or interpreting the image.
+- The *Time-To-First-Token (TTFT)* indicator shows the latency metric for the inference.
+
+<Tip>
+If responses are delayed beyond a few seconds or fail, ensure you have selected a supported model and that the model files are correctly in place under `app/FastVLM/model`.
+</Tip>
+
+---
+
+## 2. Permissions Setup
+
+FastVLM on mobile requires certain app permissions for full functionality:
+
+### Camera and Photo Access
+
+- The app accesses the device camera for live image capture and the photo library to select existing images.
+- When prompted during app use, grant **Camera** and **Photos** permissions.
+
+### How to Verify & Manage Permissions
+
+- Navigate to **Settings > FastVLM** on your device.
+- Make sure **Camera** and **Photos** access are enabled.
+
+<Warning>
+Without these permissions, the app cannot capture or load images, so inference will be limited to static or built-in prompts only.
+</Warning>
+
+---
+
+## 3. Validating Model Installation
+
+FastVLM’s mobile app relies on pretrained models stored in the app bundle to perform offline inference.
+
+### Step 1: Confirm Model Presence
+
+- Check the directory `app/FastVLM/model` in your project workspace.
+- Ensure it contains a supported model folder (i.e., `fastvlm_0.5b_stage3`, `fastvlm_1.5b_stage3`, or `fastvlm_7b_stage3`).
+
+### Step 2: Download or Switch Models
+
+- Use the provided script to download pretrained models to the required directory:
+
+```bash
+chmod +x app/get_pretrained_mlx_model.sh
+app/get_pretrained_mlx_model.sh --model 0.5b --dest app/FastVLM/model
+```
+
+- After downloading, clean and rebuild your Xcode project to ensure the model is embedded.
+
+<Tip>
+Switching between models is as easy as re-running the script with a different `--model` parameter, followed by a rebuild.
+</Tip>
+
+---
+
+## 4. Common Issues & Troubleshooting
+
+Here are some typical problems and steps to resolve them:
+
+### Issue: App Crashes or Fails to Launch
+
+- **Cause:** Model files missing or corrupted.
+- **Solution:** Verify presence of model checkpoint files in `app/FastVLM/model`. Re-download model using the script if needed.
+
+### Issue: Inference Takes Too Long
+
+- **Cause:** Using largest 7B model on constrained hardware or simulator.
+- **Solution:** Use the smaller 0.5B or 1.5B models for development.
+- Try running inference on a real device rather than simulator for better performance.
+
+### Issue: Camera or Photo Access Denied
+
+- **Cause:** Permissions not granted.
+- **Solution:** Go to device Settings and enable all required permissions for FastVLM.
+
+### Issue: App Displays No Response or Blank Output
+
+- **Cause:** Model loading error or inference process blocked.
+- **Solution:** Restart the app, ensure the model directory is correctly configured, and confirm no errors appear in Xcode logs.
+
+---
+
+## 5. Understanding a Healthy First Launch
+
+A well-functioning FastVLM mobile app displays:
+
+- A clean UI with prompt selection accessible.
+- Smooth camera or photo input operation.
+- Prompt submission immediately triggers model inference.
+- Rapid response showing text output with TTFT displayed.
+
+If all these are met, your app is ready for experimentation and development.
+
+<Check>
+Open Xcode’s Console log to monitor runtime output and catch detailed errors immediately during app execution.
+</Check>
+
+---
+
+## 6. Next Steps & Further Exploration
+
+After successfully validating the FastVLM app launch and inference:
+
+- Explore the [Running the Demo App on iPhone, iPad, or Mac](../getting-started/apple-device-inference/running-mobile-app) page for comprehensive build and run details.
+- Learn about exporting custom models for Apple Silicon from the [Model Export for Apple Silicon](../model_export) guide.
+- Experiment with modifying prompts and building your own question sets within the app UI.
+
+---
+
+## Additional Resources
+
+- [FastVLM Project GitHub](https://github.com/apple/ml-fastvlm)
+- [FastVLM Model Zoo & Downloads](https://ml-site.cdn-apple.com/datasets/fastvlm)
+- Related Docs:
+  - [Installation & Environment Setup](../../setup-local-inference/installation)
+  - [Running Your First Inference](../../setup-local-inference/first-inference)
+  - [Exporting Models for Apple Silicon](../../apple-device-inference/apple-silicon-export)
+
+---
+
+This guide ensures your FastVLM mobile app is running correctly and helps you quickly overcome common startup challenges on Apple devices. Enjoy exploring vision-language capabilities directly on-device with FastVLM!
