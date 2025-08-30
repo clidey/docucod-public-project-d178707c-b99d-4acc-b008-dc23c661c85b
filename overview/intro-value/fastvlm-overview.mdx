@@ -1,0 +1,139 @@
+---
+title: "What is FastVLM?"
+description: "An introduction to FastVLM, summarizing its purpose as an efficient hybrid vision encoder for vision-language models. Learn how FastVLM streamlines encoding for high-resolution images while providing real-time performance—especially on resource-constrained devices such as mobile phones and Apple Silicon."
+---
+
+# What is FastVLM?
+
+## Unlocking Efficient Vision-Language Understanding On the Edge
+
+FastVLM introduces a new paradigm in vision-language models by providing a fast, resource-aware hybrid vision encoder designed to deliver real-time high-resolution image understanding on devices like mobile phones and Apple Silicon-powered Macs. It seamlessly integrates vision and language, enabling rapid and accurate interpretations of images paired with textual prompts.
+
+### Key Benefits of FastVLM
+- **Ultra-Fast Encoding:** Significantly reduces the time-to-first-token (TTFT), enabling near-instant visual question answering.
+- **Hybrid Vision Encoding:** Combines hierarchical and token-efficient strategies to process high-resolution images effectively.
+- **On-Device Performance:** Designed specifically to run efficiently on resource-constrained environments like iOS 18.2+, macOS 15.2+, and Apple Silicon processors.
+- **Flexible Prompting:** Supports customizable prompts and built-in examples, making it easy to start or tailor visual queries.
+- **Multiple Model Sizes:** Available in small (0.5B), medium (1.5B), and large (7B) variants, balancing speed and accuracy according to your device and need.
+
+### Who Should Use FastVLM?
+FastVLM is ideal for developers and engineers building vision-language applications on mobile and desktop platforms where fast, private, and real-time image understanding is crucial. Whether you are integrating visual question answering, image captioning, or interactive vision-based chatbots, FastVLM delivers a compact yet powerful solution.
+
+---
+
+## What is FastVLM?
+
+FastVLM is a state-of-the-art vision-language model that employs the **FastViTHD** hybrid vision encoder architecture to create a compact, efficient representation of high-resolution images. It bridges visual inputs with powerful Qwen2-based large language models (LLMs), enabling quick and accurate generation of text based on images.
+
+At its core, FastVLM aims to solve the challenge of slow and resource-heavy image encoding that impedes real-time user experiences, especially on mobile and edge devices. By outputting fewer but more meaningful vision tokens, it drastically reduces inference latency without sacrificing accuracy.
+
+### What Makes FastVLM Unique?
+- **Hybrid Vision Encoder (FastViTHD):** Unlike traditional convolutional or transformer-only encoders, FastViTHD captures detailed visual features while compressing information into fewer tokens, optimizing both speed and quality.
+- **Scalable Model Sizes:** Select from FastVLM 0.5B for ultra-fast mobile scenarios, 1.5B for balanced speed and accuracy, or 7B for high-precision tasks prioritizing accuracy.
+- **On-Device Privacy and Speed:** All processing occurs locally without sending data to the cloud, preserving privacy and improving responsiveness.
+
+### How FastVLM Works (Simplified Overview)
+When you provide an image and a prompt:
+1. **Preprocessing:** The image is resized and normalized on-device.
+2. **Vision Encoding:** FastViTHD encodes the image into a compact sequence of tokens.
+3. **Multimodal Fusion:** The encoded vision tokens are projected and merged with language tokens from the prompt.
+4. **Language Modeling:** The Qwen2-instruct LLM consumes the combined tokens to generate a textual response.
+5. **Streaming Output:** Token generation streams in real-time, showing you answers with very low delay.
+
+This multi-step process happens entirely on-device with support for continuous real-time inference from live camera feeds as well.
+
+---
+
+## Core Features & Capabilities
+
+### 1. FastViTHD Hybrid Vision Encoder
+Efficiently processes high-resolution images with fewer tokens to accelerate encoding. This core innovation enables faster inference without compromising on capturing complex visual details.
+
+### 2. Integrated Multimodal Projection
+Transforms vision features to align with the language model embedding space, facilitating smooth fusion between image and text inputs.
+
+### 3. Qwen2-Instruct Language Model
+Leverages a powerful LLM tuned for instruction following, enabling natural and precise responses to image-based prompts.
+
+### 4. Flexible Prompting System
+Includes built-in prompts (e.g., Describe Image, Read Text, Facial Expression) and supports custom prompt editing for tailored use cases.
+
+### 5. Multiple Model Sizes to Match Your Needs
+- **0.5B Variant:** Optimized for mobile devices prioritizing speed.
+- **1.5B Variant:** Balanced for devices needing good speed and accuracy.
+- **7B Variant:** Prioritizes accuracy on devices where performance is less constrained.
+
+### 6. On-Device Model Loading & Management
+Supports easy downloading and switching of pretrained models directly inside the app.
+
+### 7. Real-Time Video Frame Analysis
+Enables streaming vision-language interaction with live camera input, maintaining fast TTFT and a smooth user experience.
+
+---
+
+## Why Should You Care?
+
+### Unlock Quick Visual Understanding
+Before FastVLM, on-device visual question answering was hampered by slow tokenization and encoding. FastVLM’s hybrid encoder delivers answers fast enough to support instant interaction.
+
+### Preserve User Privacy
+All image processing and inference occur locally without cloud dependency, ensuring sensitive data stays on-device.
+
+### Flexible and Developer-Friendly
+FastVLM supports both standard and custom prompts, multi-resolution images, and multiple pretrained model sizes to fit a variety of application requirements.
+
+### Real-World Use Cases
+- **Mobile Visual Assistants:** Get immediate descriptions for images captured by phone cameras.
+- **Accessibility Tools:** Assist visually impaired users with text explanations of visual content.
+- **Content Moderation & Tagging:** Automatically generate labels and summaries in apps running on edge devices.
+- **Augmented Reality:** Enhance AR apps with real-time scene understanding through pure on-device processing.
+
+### Before and After FastVLM
+| Aspect                     | Without FastVLM                                      | With FastVLM                                             |
+|----------------------------|-----------------------------------------------------|----------------------------------------------------------|
+| Time to First Token (TTFT) | High latency; user waits multiple seconds for output | Blazing fast TTFT (up to 85x faster on smallest model)   |
+| Device Dependency          | Requires powerful servers or cloud to run           | Runs efficiently on mobile and Apple Silicon hardware    |
+| Privacy                   | Data sent to cloud for inference                      | Fully on-device, safeguarding sensitive info             |
+
+---
+
+## Getting Started Preview
+
+Start exploring FastVLM by downloading a pretrained model and running inference in just a few simple steps.
+
+### Quick Start Highlights
+- Make the provided model download script executable.
+- Download a pretrained model (0.5B, 1.5B, or 7B).
+- Open and build the app using Xcode.
+
+### Prerequisites
+- iOS 18.2+ or macOS 15.2+ devices.
+- Xcode for building and running the demo app.
+
+### Example Shell Commands
+```shell
+chmod +x app/get_pretrained_mlx_model.sh
+app/get_pretrained_mlx_model.sh --model 0.5b --dest app/FastVLM/model
+```
+
+After downloading, open the app project in Xcode, build, and run.
+
+### Next Steps
+- Customize prompts within the app for your specific use cases.
+- Explore model export options for Apple Silicon inference.
+- Dive into the Getting Started and Guides sections for detailed workflows.
+
+---
+
+## Additional Resources
+- [Official FastVLM Paper (CVPR 2025)](https://www.arxiv.org/abs/2412.13303)
+- [FastVLM Model Zoo & Checkpoints](README.md)
+- [App Setup & Usage](app/README.md)
+- [Model Export for Apple Silicon](model_export/README.md)
+
+
+---
+
+Experience FastVLM today to supercharge your vision-language applications with blazing speed, on-device privacy, and unmatched flexibility.
+
+---
