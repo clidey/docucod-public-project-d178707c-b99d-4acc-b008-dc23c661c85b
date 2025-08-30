@@ -1,0 +1,357 @@
+---
+title: "Fine-tuning & Training Custom FastVLM Models"
+description: "A comprehensive guide for training or fine-tuning FastVLM variants on your own datasets. Covers supervised fine-tuning, leveraging LoRA adapters, configuring vision encoders, managing datasets, and running the training scripts to create optimized vision-language models."
+---
+
+# Fine-tuning & Training Custom FastVLM Models
+
+This guide walks you through training or fine-tuning your own FastVLM variants tailored to your datasets. You'll learn how to prepare supervised datasets, configure model and training parameters, leverage LoRA adapters for efficient tuning, handle multimodal inputs, and execute training scripts to build optimized vision-language models.
+
+---
+
+## 1. Introduction
+
+Fine-tuning FastVLM enables you to adapt powerful multimodal models to specialized tasks or domains, improving accuracy and relevance while leveraging FastVLM’s efficient hybrid vision encoder and flexible architecture.
+
+This page focuses exclusively on the training flow, providing step-by-step guidance from dataset preparation to launching the training run and saving your fine-tuned checkpoints.
+
+---
+
+## 2. Workflow Overview
+
+### Goal
+Train or fine-tune FastVLM models on your own datasets, including supervised text and image inputs, optionally with LoRA adapters for parameter-efficient tuning.
+
+### Prerequisites
+- Python environment with FastVLM installed (preferably in a conda environment).
+- Access to training datasets formatted as JSON files with conversation data and optional image references.
+- Sufficient compute resources (GPU recommended) to run PyTorch training.
+- Familiarity with command line usage.
+
+### Expected Outcome
+A trained FastVLM model checkpoint saved locally, capable of better performing on your target domain or task.
+
+### Estimated Time
+Depends on dataset size and model scale; expect from minutes (tiny dataset) to hours or days (large model and dataset).
+
+### Difficulty
+Intermediate to advanced machine learning practitioner, comfortable with model fine-tuning concepts.
+
+---
+
+## 3. Preparing Your Dataset
+
+FastVLM expects training data as JSON files containing multiple conversational entries. Each entry should optionally include image references along with dialog turns.
+
+### Dataset Structure Example
+```json
+[
+  {
+    "conversations": [
+      {"from": "human", "value": "Describe the image."},
+      {"from": "gpt", "value": "This image shows ..."}
+    ],
+    "image": "img_0001.png"
+  },
+  ...
+]
+```
+
+- `conversations` is a list of turn dictionaries indicating who said what.
+- `image` refers to an image filename located under provided image folders.
+
+### Image Folder Organization
+- Images should be stored in directories provided via the `--image-folder` argument.
+- Each dataset JSON may point to images in one or more folders (list supported).
+
+### Important Dataset Details
+- Conversations must alternate roles properly.
+- Include the default image token in text where image context is referenced, e.g., `<image>` or a special token (handled automatically).
+
+<Tip>
+Ensure your dataset tokens fit within the model's max sequence length (default 512 tokens) to avoid unwanted truncation.
+</Tip>
+
+---
+
+## 4. Configuring Model & Training Parameters
+
+Fine-tuning is controlled via three main categories of arguments:
+
+### 4.1 Model Arguments
+- `model_name_or_path`: Base pretrained model checkpoint path or HF model identifier (e.g., `facebook/opt-125m`).
+- `version`: Sets conversation template version (e.g., "v0", "v0.5", "qwen_v2").
+- `freeze_backbone`: Freeze model backbone parameters to fine-tune only adapters.
+- `vision_tower`: Specify vision encoder; enables multimodal training.
+- Various adapter tuning flags, e.g., `tune_mm_mlp_adapter`.
+
+### 4.2 Data Arguments
+- `data_path`: List of JSON dataset files.
+- `image_folder`: List of folders storing training images.
+- `image_aspect_ratio`: Controls image preprocessing; options like "square", "pad", "anyres".
+- `is_multimodal`: Boolean indicating if training includes images.
+
+### 4.3 Training Arguments
+Inherited from Huggingface `TrainingArguments` with extensions:
+- `output_dir`: Directory to save checkpoints.
+- `per_device_train_batch_size`, `num_train_epochs`, etc.
+- Quantization bits: `bits` (e.g., 16, 8, 4).
+- LoRA tuning options: enable with `lora_enable`, parameters like `lora_r`, `lora_alpha`.
+- Gradient checkpointing support.
+
+---
+
+## 5. Running the Training Script
+
+The primary entry point for training is the command:
+```bash
+python -m llava.train.train \
+  --model_name_or_path /path/to/model \
+  --data_path /path/to/dataset.json \
+  --image_folder /path/to/images \
+  --output_dir /path/to/save/checkpoints \
+  [other training args]
+```
+
+### Step-by-Step Example
+<Steps>
+<Step title="Step 1: Prepare environment">
+Install dependencies and activate your environment.
+```bash
+conda create -n fastvlm python=3.10
+conda activate fastvlm
+pip install -e .
+```
+</Step>
+<Step title="Step 2: Organize dataset">
+Put your JSON training files in a known directory and prepare associated images.
+</Step>
+<Step title="Step 3: Choose a base model">
+Select a base model checkpoint compatible with FastVLM (e.g., `facebook/opt-125m`).
+</Step>
+<Step title="Step 4: Configure training">
+Set parameter flags for your scenario. For example, to enable LoRA:
+
+```bash
+--lora_enable True --lora_r 64 --lora_alpha 16
+```
+</Step>
+<Step title="Step 5: Launch training">
+Run the training script with your argments. Example:
+
+```bash
+python -m llava.train.train \
+  --model_name_or_path facebook/opt-125m \
+  --data_path data/train.json \
+  --image_folder data/images \
+  --output_dir outputs/finetuned_model \
+  --num_train_epochs 3 \
+  --per_device_train_batch_size 8 \
+  --lora_enable True
+```
+</Step>
+<Step title="Step 6: Monitor and validate">
+Watch console logs for progress. Check saved checkpoints under `output_dir`.
+</Step>
+</Steps>
+
+### Tips
+- Use the `local_rank` and distributed training options to scale on multi-GPU setups.
+- Use `gradient_checkpointing` to save memory on larger models.
+- Adjust `model_max_length` to fit your longest training sequences.
+
+---
+
+## 6. Multimodal Input Handling & Image Preprocessing
+
+FastVLM supports multimodal fine-tuning, combining images with conversation data.
+
+### Image Processing Features
+- **Image Aspect Ratio Handling**: Supports square cropping, padding, arbitrary resolution with configured processors.
+- **Image Token Replacement**: Uses special tokens (`[IMG]`, start/end tokens) to mark image embeddings in text.
+- **LazyPreprocessing**: Enables runtime image processing to reduce memory footprint.
+
+### Preparing Samples
+Each training sample may contain:
+- Tokenized text conversation sequences.
+- Processed image tensors with size information.
+
+The training dataset loader automatically reads images, processes them with vision encoders, and aligns text-image pairs.
+
+<Tip>
+Ensure your images are accessible in the referenced folders and match entries in the dataset JSON.
+</Tip>
+
+---
+
+## 7. Utilizing LoRA for Efficient Fine-tuning
+
+LoRA (Low-Rank Adaptation) adapters enable you to train only a small subset of model parameters while leaving most weights frozen, accelerating training and reducing resource use.
+
+### How to enable LoRA
+- Set `lora_enable` to `True` in training args.
+- Configure rank-related parameters: `lora_r`, `lora_alpha`, `lora_dropout`.
+- Optionally specify `lora_bias` setting.
+
+### Benefits
+- Saves GPU memory and compute.
+- Allows effective fine-tuning on smaller datasets.
+
+### Saving LoRA Weights
+- LoRA weights are saved separately along with the model config.
+- Use provided helper functions to extract and save only LoRA parameters.
+
+---
+
+## 8. Understanding Tokenizer and Conversation Versions
+
+FastVLM supports multiple conversation template versions (`v0`, `v0.5`, `qwen_v2`, `mpt`, etc.) which impact text tokenization and masking:
+
+- Different versions use distinct special token separators.
+- Tokenization prep masks human inputs when computing loss.
+- Tokenizer padding tokens are handled dynamically depending on version.
+
+Set the correct `version` argument to match training and inference joint formats.
+
+<Tip>
+Mismatched tokenizer or conversation versions between training and inference will result in tokenization warnings or degraded performance.
+</Tip>
+
+---
+
+## 9. Saving and Resuming Training
+
+- Checkpoints are automatically saved at intervals within the `output_dir`.
+- If resumed, training picks up from the latest checkpoint.
+- LoRA-only or adapter-only saves are supported via flags.
+
+Use the `resume_from_checkpoint=True` flag during training to continue previous runs.
+
+---
+
+## 10. Troubleshooting Common Issues
+
+<AccordionGroup title="Training Issues Troubleshooting">
+<Accordion title="Mismatch between tokenizer and model version">
+Ensure the `version` parameter matches the tokenizer and conversation templates.
+Review warnings about tokenizer mismatches carefully.
+</Accordion>
+<Accordion title="Out of Memory Errors">
+Reduce batch size, enable gradient checkpointing, avoid unnecessary model backbone tuning.
+Consider using LoRA adapters for efficiency.
+</Accordion>
+<Accordion title="Loading images failed or dataset errors">
+Verify images exist at paths given in JSON dataset.
+Check image folder arguments are correct and accessible.
+</Accordion>
+<Accordion title="Checkpoint saving fails or files missing">
+Check POSIX file permissions.
+Avoid network drive latency if applicable.
+Use local disk when possible.
+</Accordion>
+</AccordionGroup>
+
+---
+
+## 11. Next Steps & Related Documentation
+
+- After training, refer to the [Running Inference with FastVLM](/guides/core-workflows/inference-basics) guide to test your fine-tuned model.
+- Learn about exporting your model for efficient deployment on Apple Silicon from the [Model Export for Apple Silicon](/getting-started/apple-device-inference/apple-silicon-export) guide.
+- Explore fine-tuning details in the source code under `llava/train/train.py` for advanced customizations.
+
+For practical demonstration of inference with customized models, see the CLI usage in `llava/serve/cli.py` and the Gradio-based web interface under `llava/serve/gradio_web_server.py`.
+
+---
+
+## 12. Reference: Training Script Arguments
+
+Here is an abbreviated list of key arguments you can pass to the training module:
+
+```bash
+# Model Arguments
+--model_name_or_path facebook/opt-125m
+--version v0
+--freeze_backbone False
+--vision_tower fastvit-hybrid
+
+# Data Arguments
+--data_path data/train.json
+--image_folder data/images
+--image_aspect_ratio square
+--is_multimodal True
+
+# Training Arguments
+--output_dir outputs/fastvlm_finetuned
+--num_train_epochs 3
+--per_device_train_batch_size 8
+--learning_rate 5e-5
+--lora_enable True
+--lora_r 64
+--lora_alpha 16
+--gradient_checkpointing True
+
+# Quantization
+--bits 16
+
+# Advanced
+--freeze_mm_mlp_adapter False
+--tune_mm_mlp_adapter True
+```
+
+Consult the source code `llava/train/train.py` for a complete list.
+
+---
+
+## 13. Key Code Components Summary
+
+- **LazySupervisedDataset**: Loads dataset lazily with optional image loading and preprocessing.
+- **DataCollatorForSupervisedDataset**: Handles batching, padding, and masking, managing multimodal inputs.
+- **preprocess()**: Tokenizes conversation with optional image token injection, applies different conversation schemas.
+- **train()**: Main function parsing args, setting up model, tokenizer, dataset, trainers, then launches training.
+
+---
+
+## 14. Additional Resources
+
+- [FastVLM Model Zoo & Pretrained Checkpoints](https://github.com/apple/ml-fastvlm#model-zoo)
+- [FastVLM Official Paper](https://arxiv.org/abs/2412.13303)
+- Repository: https://github.com/apple/ml-fastvlm
+
+---
+
+## 15. Helpful Tips
+
+- Always verify your dataset format before training to catch formatting errors early.
+- Start with smaller datasets and fewer epochs to verify your setup.
+- Use LoRA adapters to experiment with hyperparameter tuning efficiently.
+- Monitor GPU memory usage and use `gradient_checkpointing` to trade compute for memory.
+- Save intermediate checkpoints frequently to avoid lost work.
+
+---
+
+## 16. Example Command
+
+```bash
+python -m llava.train.train \
+  --model_name_or_path facebook/opt-125m \
+  --data_path ./data/train.json \
+  --image_folder ./data/images \
+  --output_dir ./outputs/finetuned \
+  --num_train_epochs 5 \
+  --per_device_train_batch_size 4 \
+  --learning_rate 3e-5 \
+  --lora_enable True \
+  --lora_r 64 \
+  --lora_alpha 16 \
+  --gradient_checkpointing True
+```
+
+This will fine-tune the model on your dataset with LoRA enabled, using gradient checkpointing to fit larger batch sizes.
+
+---
+
+# End of Guide
+
+---
+
+<Source url="https://github.com/apple/ml-fastvlm" paths='[{"path": "llava/train/train.py", "range": "1-623"}]' branch="main" />
