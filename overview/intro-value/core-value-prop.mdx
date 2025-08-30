@@ -1,0 +1,100 @@
+---
+title: "How FastVLM Delivers Value"
+description: "Explore FastVLM’s main innovations: faster encoding speed, reduced resource usage, and competitive accuracy. This page distills product differentiators and how these benefit researchers, application developers, and end users seeking high-performance vision-language systems."
+---
+
+# How FastVLM Delivers Value
+
+FastVLM transforms vision-language modeling by focusing on delivering exceptional performance without compromising accuracy or resource efficiency. This page highlights the key innovations behind FastVLM, pinpoints its unique advantages, and frames them in the context of how they empower researchers, developers, and end users.
+
+---
+
+## Accelerating High-Resolution Vision Encoding
+
+At the heart of FastVLM lies **FastViTHD**, a hybrid vision encoder that fundamentally rethinks how images are processed for vision-language models. Instead of the conventional approach producing a large number of visual tokens that burden downstream processing, FastViTHD outputs significantly fewer tokens — this leads to an accelerated encoding pipeline.
+
+- **Benefit:** Near real-time generation of the first token (Time-To-First-Token, or TTFT).
+- **Outcome:** Users experience prompt responses, crucial for applications needing instant feedback like interactive assistants or mobile apps.
+
+For example, FastVLM’s smallest variant achieves an unprecedented **85x faster TTFT** than comparable prior models, making it highly practical for supply constrained environments.
+
+## Superior Efficiency With Competitive Accuracy
+
+FastVLM balances speed and accuracy with a vision encoder that is **3.4x smaller** in size than comparable solutions while still matching or outperforming their accuracy.
+
+- **Benefit:** Reduced memory consumption and bandwidth for model deployment.
+- **Outcome:** Enables on-device inference on compact and energy-efficient hardware such as Apple Silicon devices, preserving user privacy and reducing latency.
+
+This means researchers and developers can build solutions that scale conveniently from academic experiments to production-grade mobile deployment.
+
+## Versatile Model Scaling and Integration
+
+FastVLM supports multiple model variants, from compact 0.5B parameter models to robust 7B parameter models built on top of strong LLM backbones including Qwen2-7B.
+
+- **Benefit:** Flexibility to choose the right model size for target use cases and hardware capabilities.
+- **Outcome:** Developers can optimize for either faster throughput or higher accuracy without rebuilding infrastructure.
+
+Furthermore, FastVLM inherits seamless integration capabilities with existing LLaVA codebases and benefits from thorough export workflows to Apple Silicon and iOS devices.
+
+## Real-World Impact — Use Case Examples
+
+- **Mobile Assistants:** Deliver lightning-fast image understanding directly on phones without server roundtrips.
+- **Interactive Applications:** Achieve smooth conversational AI interactions that incorporate image content instantly.
+- **Edge Deployment:** Efficient models that run on Macs with Apple Silicon, supporting privacy and offline scenarios.
+
+Before FastVLM, many vision-language systems faced trade-offs between latency, model size, and accuracy. FastVLM removes these compromises, empowering developers to innovate faster and users to enjoy responsive, accurate AI experiences.
+
+---
+
+## Technical Highlights Summary
+
+| Feature                          | User-Centric Benefit                             |
+|---------------------------------|------------------------------------------------|
+| FastViTHD hybrid encoder        | Rapid image token generation → nearly instant results |
+| Compact vision encoder size     | Deploy on-device with reduced resource usage    |
+| Variant portfolio from 0.5B–7B  | Choose performance vs. size suited to tasks     |
+| Compatibility with LLaVA framework | Leverage existing training and inference pipelines |
+| Apple Silicon and iOS export    | Model runs natively on modern Apple hardware     |
+
+---
+
+## Getting Started Preview
+
+To experience the speed and efficiency of FastVLM, start by downloading a pretrained checkpoint and running inference:
+
+```bash
+# Download pretrained models
+bash get_models.sh  # Downloads to checkpoints directory
+
+# Run inference with an image prompt
+python predict.py --model-path ./checkpoints/fastvlm_0.5b_stage3 \
+                  --image-file ./examples/sample.jpg \
+                  --prompt 'Describe the details in this image.'
+```
+
+**Prerequisites:**
+- Python 3.10 environment
+- PyTorch and required dependencies installed
+- Image file available locally or remotely
+
+For users deploying on Apple Silicon, follow the model export instructions in the `model_export` subfolder to prepare your model in CoreML format.
+
+---
+
+## Troubleshooting & Best Practices
+
+- Ensure your Python environment matches the recommended setup, including the correct versions of packages.
+- Use the provided downloading script to avoid corrupted or incomplete checkpoints.
+- For Apple Silicon inference, remember to export models properly using CoreML supported workflows.
+- Start with smaller models to validate your setup before scaling to larger variants.
+
+---
+
+For more detailed guides, including architecture, model training, and deployment on Apple devices, explore these documentation sections:
+
+- [What is FastVLM?](../intro-value/fastvlm-overview)
+- [System Architecture & Data Flow](../architecture-concepts/system-architecture)
+- [Inference & Model Export for Apple Silicon](../../guides/platform-integration/apple-silicon-inference)
+
+
+---
