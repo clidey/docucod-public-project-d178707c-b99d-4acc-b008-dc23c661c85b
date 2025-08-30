@@ -1,0 +1,209 @@
+---
+title: "Best Practices for Reliable Model Deployment"
+description: "Guidance on selecting appropriate model checkpoints, recommended workflow patterns, managing large checkpoint downloads, and maintaining reproducibility in different operating environments."
+---
+
+# Best Practices for Reliable Model Deployment
+
+## Workflow Overview
+
+### Task Description
+This guide provides practical, step-by-step recommendations to help you select suitable FastVLM model checkpoints, manage large model downloads efficiently, and ensure reproducible deployments across different operating environments.
+
+### Prerequisites
+- Familiarity with FastVLM pretrained model checkpoints and their staging (e.g., stages 2 and 3).
+- Access to the internet for downloading model checkpoints.
+- A configured FastVLM environment prepared for loading and running models (refer to the [Installation & Environment Setup](https://github.com/apple/ml-fastvlm) and [Downloading Pretrained Models](/getting-started/setup-local-inference/download-models) guides).
+- Basic understanding of your target device or platform specifications.
+
+### Expected Outcome
+- Confident selection of FastVLM checkpoints matching your use case and resource constraints.
+- Efficient handling of large model files with strategies to minimize download interruptions.
+- Consistent and reproducible model deployment across different systems and environments.
+
+### Time Estimate
+Approximately 15 to 30 minutes depending on download speeds and environment setup status.
+
+### Difficulty Level
+Intermediate - requires understanding model versions, deployment environments, and system resource considerations.
+
+---
+
+## 1. Selecting Appropriate Model Checkpoints
+
+FastVLM offers multiple pretrained checkpoints across different model sizes (0.5B, 1.5B, 7B) and fine-tuning stages (Stage 2 and Stage 3).
+
+### Step 1: Understand Your Use Case and Resources
+- **Mobile or Resource-constrained devices:** Choose smaller models like FastVLM-0.5B to minimize memory and compute usage.
+- **High accuracy and richer language capabilities:** Larger models such as FastVLM-7B or FastVLM-1.5B offer enhanced performance.
+
+### Step 2: Select the Checkpoint Stage
+- **Stage 2 Checkpoints:** Typically intermediate fine-tuning, suitable for baseline experiments.
+- **Stage 3 Checkpoints:** Generally the most refined models with advanced fine-tuning for best accuracy.
+
+### Step 3: Confirm File Compatibility
+- If deploying on Apple Silicon devices, use the Apple Silicon–compatible checkpoints with CoreML exports available or export your own following the [Apple Silicon Export guide](/getting-started/apple-device-inference/apple-silicon-export).
+
+
+## 2. Efficiently Managing Large Checkpoint Downloads
+
+Large model files can be tens of gigabytes. Follow these practical tips to ensure reliable downloads:
+
+- **Use Provided Download Scripts:** Utilize FastVLM's `get_models.sh` script which automates downloading and verification.
+
+- **Validate Checkpoint Integrity:** After download, confirm the files are intact before usage. The script usually verifies checksums.
+
+- **Use Download Managers:** For unstable connections, use robust tools (e.g., `aria2`) that support resume and parallel connections.
+
+- **Plan Storage Needs:** Ensure sufficient disk space to accommodate fully expanded checkpoint files.
+
+- **Avoid Partial Checkpoint Use:** Do not attempt to run inference with incomplete checkpoints; this leads to load failures or corrupted models.
+
+## 3. Maintaining Reproducibility Across Operating Environments
+
+Model deployment consistency is critical, especially across platforms like Linux, macOS (including Apple Silicon), and Windows.
+
+### Step 1: Pin Software Versions
+- Use virtual environments or containers to lock Python versions, dependencies, and PyTorch versions.
+- September 2024 standard is Python 3.10 with appropriate PyTorch and Transformers versions (check [Prerequisites & System Requirements](/getting-started/setup-local-inference/prerequisites)).
+
+### Step 2: Match Model Loading Settings
+- When loading FastVLM checkpoints, ensure the device (e.g., `cuda`, `mps`, or CPU) is specified consistently to prevent unexpected behavior.
+- Use the `load_pretrained_model` method's device and precision flags accurately for stable results.
+
+### Step 3: Control Model Parameters and Random Seeds
+- For training or fine-tuning, set explicit random seeds and consistent batch sizes.
+- For inference, keep generation parameters like `temperature`, `top_p`, and `max_new_tokens` consistent per deployment.
+
+### Step 4: Use Fixed Versions of Checkpoint Files
+- Do not mix model files from different stages or checkpoints; keep each deployment consistent with a known, stable checkpoint.
+
+### Step 5: Export and Use Platform-Specific Models
+- For Apple Silicon, export using the `export_vision_encoder.py` script and convert using the patched `mlx-vlm` tool.
+- Follow detailed instructions at [Model Export for Apple Silicon](model_export/README.md).
+
+### Step 6: Record Deployment Metadata
+- Store metadata around model versions, configuration, and environment details alongside your deployment to aid troubleshooting and exact reproduction.
+
+---
+
+## Examples & Patterns
+
+### Example: Selecting and Running a FastVLM Model
+Run inference on a moderate compute platform with the 1.5B Stage 3 checkpoint:
+
+```bash
+python predict.py \
+  --model-path ./checkpoints/fastvlm_1.5b_stage3 \
+  --image-file ./examples/image.png \
+  --prompt "Describe the image." \
+  --conv-mode qwen_2 \
+  --temperature 0.2
+```
+
+Expected: The model will load the 1.5B Stage 3 checkpoint and output a descriptive text.
+
+### Pattern: Managing Large Model Downloads
+
+```
+# Execute the download script
+bash get_models.sh
+
+# If failure occurs, use aria2 with resume:
+aria2c -c -x 16 -s 16 <model_url>
+
+# Verify size and hash after download
+sha256sum fastvlm_1.5b_stage3.zip
+```
+
+### Example: Exporting for Apple Silicon
+
+```bash
+# Export the vision encoder
+python export_vision_encoder.py --model-path ./checkpoints/fastvlm_1.5b_stage3
+
+# Convert LLM for Apple Silicon
+python -m mlx_vlm.convert --hf-path ./checkpoints/fastvlm_1.5b_stage3 \
+                          --mlx-path ./exported_fastvlm_1.5b_stage3 \
+                          --only-llm \
+                          -q --q-bits 8
+```
+
+---
+
+## Troubleshooting & Tips
+
+<AccordionGroup title="Common Issues and Solutions">
+<Accordion title="Checkpoint Load Failures">
+- **Cause:** Corrupted or partial checkpoint files.
+- **Solution:** Redownload with verification. Use stable scripts like `get_models.sh`.
+</Accordion>
+<Accordion title="Mismatch in Environment Configuration">
+- **Cause:** Different PyTorch or Transformers versions.
+- **Solution:** Pin dependencies, use Conda or virtualenv, confirm versions.
+</Accordion>
+<Accordion title="Inconsistent Outputs Across Devices">
+- **Cause:** Differing precision modes (`float16` vs `bfloat16`), device mismatch.
+- **Solution:** Fix generation parameters and loading devices explicitly.
+</Accordion>
+<Accordion title="Large File Storage and I/O Bottlenecks">
+- **Cause:** Slow disks or insufficient space causing read/write failures.
+- **Solution:** Use SSDs, verify disk space, and avoid simultaneous large file operations.
+</Accordion>
+</AccordionGroup>
+
+<Tip>
+For Apple Silicon deployment, always ensure the exported model and vision encoder have matching configurations and proper quantization. Run the provided test inference to verify correctness before full integration.
+</Tip>
+
+<Tip>
+Use version control or metadata tagging to cache model checkpoint versions and export dates for traceability.
+</Tip>
+
+---
+
+## Next Steps & Related Content
+
+- Explore [Running Your First Inference](/getting-started/setup-local-inference/first-inference) for hands-on examples of running FastVLM models.
+- Review [Exporting Models for Apple Silicon](/getting-started/apple-device-inference/apple-silicon-export) to adapt models for Apple hardware.
+- Consult [Optimizing Latency and Throughput](/guides/performance-best-practices/latency-throughput-tips) to improve inference performance.
+- Dive deeper into [Fine-tuning & Training Custom FastVLM Models](/guides/core-workflows/finetuning-models) if you require customized models.
+
+---
+
+## References and Resources
+
+- FastVLM Repository: https://github.com/apple/ml-fastvlm
+- Model Zoo Overview: [FastVLM Overview](https://github.com/apple/ml-fastvlm#model-zoo)
+- Apple Silicon Export Documentation: [model_export/README.md](model_export/README.md)
+- FastVLM System Architecture: /overview/architecture-concepts/system-architecture
+- Downloading Pretrained Models: /getting-started/setup-local-inference/download-models
+- Running Inference CLI Guide: /guides/core-workflows/inference-basics
+
+---
+
+## Summary Diagram of Deployment Workflow
+
+```mermaid
+flowchart TD
+    A[Start: Define Use Case] --> B[Select Model Size]
+    B --> C{Is Device Resource-Constrained?}
+    C -->|Yes| D[Choose FastVLM-0.5B]
+    C -->|No| E[Choose Larger Model (1.5B or 7B)]
+    D & E --> F[Select Checkpoint Stage (Stage 2 or 3)]
+    F --> G[Download Checkpoint Using Script]
+    G --> H{Download Successful?}
+    H -->|No| I[Retry or Use Download Manager]
+    H -->|Yes| J[Verify Checkpoint Integrity]
+    J --> K{Target Platform Apple Silicon?}
+    K -->|Yes| L[Export Vision Encoder: `export_vision_encoder.py`]
+    L --> M[Convert Model Using `mlx_vlm.convert`]
+    K -->|No| N[Proceed with PyTorch Checkpoint]
+    M & N --> O[Configure Environment & Dependencies]
+    O --> P[Run Inference or Fine-Tuning]
+    P --> Q[Record Metadata & Configuration]
+    Q --> R[End: Successful Deployment]
+
+    classDef decision fill:#f96,stroke:#333,stroke-width:2px;
+    class C,H,K decision;
+```
